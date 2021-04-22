@@ -1,0 +1,10 @@
+Requerimientos:
+BR-1.- Crear Usuarios - Formulario
+OK0.- Login - Datos de usuario precargados
+OK1.- Tener datos de un usuario fake
+OK2.- Poder crear un post ( el post debe contener la información del usuario que la escribió )
+OK3.- Los post deben estar organizados por categorías
+H4.- Activar los filtros de feed, week, month, year, infinity, latest - Todo es la misma un función
+B5.- Activar el search box, filtrando por título del post
+B6.- vista del detalle del post
+H7.- agregar comentarios al post ( deben incluir la información del usuario fake )
