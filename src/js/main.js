@@ -33,15 +33,17 @@ const patchPost = (event, newVal, newKey) => {
     console.log(postKey)
     console.log(newVal)
     $.ajax({
-        method:"PATCH",
-        data:JSON.stringify({[newKey]:newVal}),
-        url:`https://ajaxclass-1ca34.firebaseio.com/11g/teamd/posts/${postKey}.json`,
+        method: "PATCH",
+        data: JSON.stringify({
+            [newKey]: newVal
+        }),
+        url: `https://ajaxclass-1ca34.firebaseio.com/11g/teamd/posts/${postKey}.json`,
         success: response => {
-            console.log( response )
+            console.log(response)
             getPosts()
         },
         error: error => {
-            console.log ( error )
+            console.log(error)
         },
         async: false,
     })
@@ -128,6 +130,34 @@ const getUsers = () => {
     return dbUsers;
 };
 
+const patchUser = (userKey, postKey) => {
+    let allPosts = getPosts()
+    let thisPost = filterByID(postId, allPosts)
+    let thisPostFavs = {}
+    console.log(thisPost)
+
+    for (post in allPosts) {
+        console.log([post], thisPost)
+        postKey === [post] ? thisPostFavs = {
+            ...thisPostFavs,
+            [post]: allPosts[post].favs
+        } : null
+    }
+    // $.ajax({
+    //     method:"PATCH",
+    //     data:JSON.stringify({'favs': thisPostFavs}),
+    //     url:`https://ajaxclass-1ca34.firebaseio.com/11g/teamd/users/${userKey}.json`,
+    //     success: response => {
+    //         console.log( response )
+    //         getUsers()
+    //     },
+    //     error: error => {
+    //         console.log ( error )
+    //     },
+    //     async: false,
+    // })
+}
+
 const deleteUser = (key) => {
     $.ajax({
         method: "DELETE",
@@ -144,23 +174,37 @@ const deleteUser = (key) => {
 
 //-------------LÓGICA ------------
 const getAutor = (userId, users) => {
-    let newUser = {};
-    //let users = getUsers();
+    let newUserData = {};
+    let newUser = {}
     for (ky in users) {
         if (users[ky].userId == userId) {
-            newUser["userName"] = users[ky].userName;
-            newUser["userPic"] = users[ky].userPic;
-            newUser["userId"] = users[ky].userId;
+            newUserData["userName"] = users[ky].userName;
+            newUserData["userPic"] = users[ky].userPic;
+            newUserData["userId"] = users[ky].userId;
+            newUser = {
+                [ky]: newUserData
+            }
         }
     }
     return newUser;
 };
 
+const filterByID = (id, coll) => {
+    let userFiltered = {}
+    for (user in coll) {
+        coll[user].userId === id ? userFiltered = {
+            ...userFiltered,
+            [user]: coll[user]
+        } : null
+    }
+    return userFiltered
+}
+
 let principalContainer = $('.total-container')
 let activeUser = {}
 let singlePostKey = ''
 $(document).ready(function () {
-    loadView("./views/landing.html", "landing")    
+    loadView("./views/landing.html", "landing")
 })
 $('.bttn-write').click(() => {
     loadView('./views/createPost.html')
@@ -182,7 +226,7 @@ const loadView = (url, view) => {
                 $('.checkuser').click((event) => {
                     event.preventDefault()
                     activeUser = checkUserExist()
-                })                
+                })
                 break
             case "createUser":
                 $('.bttn-login').removeClass('d-sm-inline')
@@ -191,11 +235,11 @@ const loadView = (url, view) => {
                 $('#avt').attr('src', 'https://image.freepik.com/vector-gratis/perfil-avatar-hombre-icono-redondo_24640-14044.jpg')
                 $('.container-home').addClass('d-none')
                 $('.container-login').removeClass('d-none')
-                $("#saveAccount").click(()=>{
+                $("#saveAccount").click(() => {
                     saveUsers(newAccount)
                     loadView("./views/home.html", "home")
                 })
-                    break
+                break
             case "landing":
                 $('.bttn-login').addClass('d-sm-inline')
                 $('.bttn-write').removeClass('d-sm-inline')
@@ -207,7 +251,6 @@ const loadView = (url, view) => {
                 $('.container-home').addClass('d-none')
                 $('.container-login').removeClass('d-none')
                 printHome(getPosts())
-                
                 break
 
             case "store":
@@ -231,7 +274,7 @@ const loadView = (url, view) => {
                     loadView("./views/createPost.html", "createPost")
                 })
                 printHome(getPosts())
-                
+                printAside()
                 break
 
             case "createPost":
@@ -302,8 +345,8 @@ const reorderArray = arr => {
     return arr
 }
 //Es importante en time poner ('days', 'weeks', 'months', 'years')
-const filterByDate = (numberOfDays,time) => {
-    console.log(typeof(numberOfDays))
+const filterByDate = (numberOfDays, time) => {
+    console.log(typeof (numberOfDays))
     let allPosts = getPosts()
     let postFilteredByTime = {}
     console.log(allPosts)
@@ -325,10 +368,13 @@ const filterByDate = (numberOfDays,time) => {
         let week = moment(moment(moment().subtract(numberOfDays, time).calendar()).format('YYYY-MM-DD'))
         let newDate = creationDate.split('/')
         creationDateToFilter = moment(newDate.reverse().join('-'))
-        difHoy = soloporhoy.diff(week,'days')
-        difPost = soloporhoy.diff(creationDateToFilter,'days')
+        difHoy = soloporhoy.diff(week, 'days')
+        difPost = soloporhoy.diff(creationDateToFilter, 'days')
         console.log('al día de hoy ' + difHoy + 'contra el post ' + difPost)
-        difPost <= difHoy ? postFilteredByTime = {...postFilteredByTime, [k]: allPosts[k]} : null
+        difPost <= difHoy ? postFilteredByTime = {
+            ...postFilteredByTime,
+            [k]: allPosts[k]
+        } : null
     }
     return postFilteredByTime
 
@@ -363,9 +409,9 @@ const printHome = (allPostsToPrint) => {
                 </a>
                 <div class="d-flex mt-3">
                 <!--Imagen de perfil-->
-                    <img src="${postAuthor.userPic}" alt="" class="rounded-circle profile-p ml-3" />
+                    <img src="${Object.values(postAuthor)[0].userPic}" alt="" class="rounded-circle profile-p ml-3" />
                     <div class="author-info ml-2">
-                    <p>${postAuthor.userName}</p>
+                    <p>${Object.values(postAuthor)[0].userName}</p>
                     <p>${creationDate}  ${creationTime} - ${moment(`${creationDate}`, "DD/MM/YYYY").fromNow()}</p>
                     </div>
                 </div>
@@ -381,7 +427,7 @@ const printHome = (allPostsToPrint) => {
                         <div>
                             <img src="Images/heart2red.svg" class="red-heart" alt="like" />
                             <img src="Images/heart2.svg" alt="like" />
-                            <a class = 'likes-anchor text-muted' data-postkey = ${key}>${likes}</a>
+                            <a class = 'likes-anchor text-muted' data-active-userID = ${activeID} data-postkey = ${key}>${likes}</a>
                             <span class="d-none d-md-inline">reactions</span>
                         </div>
                         <div>
@@ -398,16 +444,16 @@ const printHome = (allPostsToPrint) => {
             </div>`
 
             $('.post-container').prepend(principalPost)
-            
+
         } else {
             let secondaryPosts =
                 `<div class="post rounded mt-2 bg-white mb-2 shadow-sm" id="post-${postId}">
             <!--Imagen principal-->
             <div class="d-flex mt-3">
                 <!--Imagen de perfil-->
-                <img src=${postAuthor.userPic} alt="" class="rounded-circle profile-p ml-3" />
+                <img src=${Object.values(postAuthor)[0].userPic} alt="" class="rounded-circle profile-p ml-3" />
                 <div class="author-info ml-2">
-                    <p>${postAuthor.userName}</p>
+                    <p>${Object.values(postAuthor)[0].userName}</p>
                     <p>${creationDate}  ${creationTime} - ${moment(`${creationDate}`, "DD/MM/YYYY").fromNow()}</p>
                 </div>
             </div>
@@ -423,7 +469,7 @@ const printHome = (allPostsToPrint) => {
                     <div>
                         <img src="Images/heart2red.svg" class="red-heart" alt="like" />    
                         <img src="Images/heart2.svg" alt="like" />
-                        <a class = 'likes-anchor text-muted' data-postkey = ${key}>${likes}</a>
+                        <a class = 'likes-anchor text-muted' data-active-userID = ${activeID} data-postkey = ${key}>${likes}</a>
                         <span class="d-none d-md-inline">reactions</span>
                     </div>
                     <div>
@@ -441,12 +487,14 @@ const printHome = (allPostsToPrint) => {
             $('.post-container').append(secondaryPosts)
             $('.red-heart').hide()
         }
-        $(`#post-${postId} .category-wrapper`).html("")  
-            tags.forEach( tag =>{
-                $(`#post-${postId} .category-wrapper`).append(`<li class="badge ${tag.replace("#", "").toLowerCase()} mr-1 p-badge font-weight-normal text-size-icon"
+        $(`#post-${postId} .category-wrapper`).html("")
+        tags.forEach(tag => {
+            $(`#post-${postId} .category-wrapper`).append(`<li class="badge ${tag.replace("#", "").toLowerCase()} mr-1 p-badge font-weight-normal text-size-icon"
                 ><a href="#" data-tag-name="${tag}" class="btn-tag">${tag}</a></li>`)
         })
+        printAside()
     }
+
 }
 
 /*const printTags = () => {
@@ -475,68 +523,80 @@ const printHome = (allPostsToPrint) => {
 
 ////Create Account
 principalContainer.on("click", ".add-user", () => {
-    console.log( " agregando usuario ")
+    console.log(" agregando usuario ")
 })
 
 $('.bttn-createAccount').click(() => {
-    loadView('./views/createUser.html')//ingresa a la pag. create user
+    loadView('./views/createUser.html') //ingresa a la pag. create user
 })
 
-const getNewAccount = ()=>{
-    let newAccount={}
+const getNewAccount = () => {
+    let newAccount = {}
 
-    $("#newAccount input, #newAccount textarea").each(function (){
-        let property =this.id
+    $("#newAccount input, #newAccount textarea").each(function () {
+        let property = this.id
         let value = this.value
-        newAccount = {...newAccount, [property]:value}   
+        newAccount = {
+            ...newAccount,
+            [property]: value
+        }
     })
 
-    newAccount = {...newAccount, userId: new Date().getTime()}
+    newAccount = {
+        ...newAccount,
+        userId: new Date().getTime()
+    }
     console.log(newAccount)
     saveUsers(newAccount)
 }
 
 //Function Search Posts
-const searchPosts = (search, posts) =>{
+const searchPosts = (search, posts) => {
     let matchPosts = {};
     let regExp = new RegExp(search, 'gi');
-    for (key in posts) { 
-      if( regExp.test(posts[key].title) ){
-        values=posts[key]
-        matchPosts = {...matchPosts, [key] : values }
-      }
+    for (key in posts) {
+        if (regExp.test(posts[key].title)) {
+            values = posts[key]
+            matchPosts = {
+                ...matchPosts,
+                [key]: values
+            }
+        }
     }
-    return matchPosts;  
-  }
-  
-  const searchByTag = (tagsearch, posts) =>{
+    return matchPosts;
+}
+
+const searchByTag = (tagsearch, posts) => {
     let matchPosts = {};
     let regExp = new RegExp(tagsearch, 'gi');
-    for (key in posts) { 
-        posts[key].tags.forEach(tag =>{
-            if( regExp.test(tag) ){
-                values=posts[key]
-                matchPosts = {...matchPosts, [key] : values }
+    for (key in posts) {
+        posts[key].tags.forEach(tag => {
+            if (regExp.test(tag)) {
+                values = posts[key]
+                matchPosts = {
+                    ...matchPosts,
+                    [key]: values
+                }
             }
-        })      
+        })
     }
-    return matchPosts;  
-  }  
-  
-  $("#inputSearch").keypress(function(e) {
-    if(e.which == 13) {
-       let allPosts = getPosts() 
-       let searchresult = searchPosts(this.value,allPosts)
-       console.log(searchresult)
-       principalContainer.load( "views/home.html",()=>{
-            if(Object.keys(searchresult).length > 0){
+    return matchPosts;
+}
+
+$("#inputSearch").keypress(function (e) {
+    if (e.which == 13) {
+        let allPosts = getPosts()
+        let searchresult = searchPosts(this.value, allPosts)
+        console.log(searchresult)
+        principalContainer.load("views/home.html", () => {
+            if (Object.keys(searchresult).length > 0) {
                 printHome(searchresult)
-            }else{
+            } else {
                 printHome(allPosts)
-            }        
-       });   
+            }
+        });
     }
-  });
+});
 
 //Detail Post
 //let urlParams = new URLSearchParams(window.location.search);
@@ -545,92 +605,90 @@ const searchPosts = (search, posts) =>{
 //console.log(postKey);
 
 const getPost = (postKey) => {
-  let dbPost = {};
-  $.ajax({
-    method: "GET",
-    url: `https://ajaxclass-1ca34.firebaseio.com/11g/teamd/posts/${postKey}.json`,
-    success: (response) => {
-      console.log(response);
-      dbPost = response;
-      
-    },
-    error: (error) => {
-      console.log(error);
-    },
-    async: false,
-  });
+    let dbPost = {};
+    $.ajax({
+        method: "GET",
+        url: `https://ajaxclass-1ca34.firebaseio.com/11g/teamd/posts/${postKey}.json`,
+        success: (response) => {
+            console.log(response);
+            dbPost = response;
 
-  //console.log("getPost", dbPost);
-  return dbPost;
-}; 
+        },
+        error: (error) => {
+            console.log(error);
+        },
+        async: false,
+    });
+
+    //console.log("getPost", dbPost);
+    return dbPost;
+};
 
 const printSinglePost = (data) => {
 
-    postAuthor = getAutor(data.userId, getUsers())  
-    console.log(data.content);
-    console.log(data.coverUrl);
+    postAuthor = getAutor(data.userId, getUsers())
     $(".post-wrapper .post-cover-img").attr("src", data.coverUrl);
     $(".post-wrapper .post-title").html(data.title);
 
     $(".post-wrapper .post-tags").html(data.title);
-    
+
     $(".post-wrapper .content").html(data.content);
-    $(".post-wrapper .post-avatar").attr("src", postAuthor.userPic);
-    let dateCreationHtml = `${postAuthor.userName} <span class="ml-3 " >${data.creationDate} ・ ${data.duration} read</span>`;
+    $(".post-wrapper .post-avatar").attr("src", Object.values(postAuthor)[0].userPic);
+    let dateCreationHtml = `${Object.values(postAuthor)[0].userName} <span class="ml-3 " >${data.creationDate} ・ ${data.duration} read</span>`;
     $(".post-wrapper .post-creation").html(dateCreationHtml);
-    
-    $('.post-wrapper .post-tags').html("")  
-    data.tags.forEach( tag =>{
+
+    $('.post-wrapper .post-tags').html("")
+    data.tags.forEach(tag => {
         $('.post-wrapper .post-tags').append(`<span class="badge ${tag.replace("#", "").toLowerCase()} mr-2 p-badge font-weight-normal text-size-icon"><a href="#" data-tag-name="${tag}" class="btn-post-tag">${tag}</a></span>`)
-    })    
-            
+    })
+
     $(".post-wrapper .post-user-avatar").attr("src", activeUser.userPic);
     $(".btn-save-replie").attr("data-commentkey", data.postId);
     //printReplies(data.postId);
 }
-    //printSinglePost(getPost(postKey));
-    //printSinglePost(getPost("-MYsPw9-8lhLZSCvtuRs"));
-    principalContainer.on("click", "#saveAccount",() => {
-        getNewAccount()
-    })
+//printSinglePost(getPost(postKey));
+//printSinglePost(getPost("-MYsPw9-8lhLZSCvtuRs"));
+principalContainer.on("click", "#saveAccount", () => {
+    getNewAccount()
+})
 
 //FUNCIONALIDAD DE BOTONES
-const setActiveBtns = () =>{
-    $('.total-container').on('click','#btn-feed',function(event){
+const setActiveBtns = () => {
+    $('.total-container').on('click', '#btn-feed', function (event) {
         $('#btn-feed').addClass('active')
         $('#btn-feed').parents('li').siblings('li').children('a').removeClass('active')
         printHome(getPosts())
     })
-    $('.total-container').on('click','#btn-week',function(event){
+    $('.total-container').on('click', '#btn-week', function (event) {
         $('#btn-week').addClass('active')
         $('#btn-week').parents('li').siblings('li').children('a').removeClass('active')
         printHome(filterByDate(7, 'days'))
     })
-    $('.total-container').on('click','#btn-month',function(event){
+    $('.total-container').on('click', '#btn-month', function (event) {
         $('#btn-month').addClass('active')
         $('#btn-month').parents('li').siblings('li').children('a').removeClass('active')
         printHome(filterByDate(1, 'month'))
     })
-    $('.total-container').on('click','#btn-year',function(event){
+    $('.total-container').on('click', '#btn-year', function (event) {
         $('#btn-year').addClass('active')
         $('#btn-year').parents('li').siblings('li').children('a').removeClass('active')
         printHome(filterByDate(1, 'year'))
     })
-    $('.total-container').on('click','#btn-infinity',function(event){
+    $('.total-container').on('click', '#btn-infinity', function (event) {
         $('#btn-infinity').addClass('active')
         $('#btn-infinity').parents('li').siblings('li').children('a').removeClass('active')
         printHome(getPosts())
     })
-    $('.total-container').on('click','#btn-latest',function(event){
+    $('.total-container').on('click', '#btn-latest', function (event) {
         $('#btn-latest').addClass('active')
         $('#btn-latest').parents('li').siblings('li').children('a').removeClass('active')
         printHome(filterByDate(14, 'days'))
     })
 }
 setActiveBtns()
-const addAttrToSelectTime = () =>{
+const addAttrToSelectTime = () => {
     let timeSelected = $('#select-time').val()
-    switch(timeSelected){
+    switch (timeSelected) {
         case 'feed':
             printHome(getPosts())
             break
@@ -656,53 +714,66 @@ const addAttrToSelectTime = () =>{
 }
 $('.total-container').on('change', '#select-time', addAttrToSelectTime)
 
-$('#devto-logo').click(() =>{
+$('#devto-logo').click(() => {
     activeUser === {} ? loadView("./views/landing.html", "landing") : loadView("./views/home.html", "home")
 })
-$('#sign-out').click(()=>{
+$('#sign-out').click(() => {
     activeUser = {}
     loadView("./views/landing.html", "landing")
 })
-$('#login-a').click(()=>{
+$('#login-a').click(() => {
     loadView("./views/login.html", "login")
 })
-$('#create-user-a').click(()=>{
+$('#create-user-a').click(() => {
     loadView("./views/createUser.html", "createUser")
 })
 
 //Cargar nuevo Post
 
-const newPost = () =>{
+const newPost = () => {
     let newPostData = {}
     let tagArray = []
     let dataContainer = $('#write-new-post input[type=text], #write-new-post textarea, #write-new-post select')
     let checkBoxContainer = $('#write-new-post input[type=checkbox]:checked')
-    dataContainer.each(function(){
+    dataContainer.each(function () {
         let containerKey = this.id
         let containerValue = this.value
-        newPostData = {...newPostData, [containerKey]: containerValue}
+        newPostData = {
+            ...newPostData,
+            [containerKey]: containerValue
+        }
     })
-    checkBoxContainer.each(function(){
+    checkBoxContainer.each(function () {
         let newValue = '#' + this.value
         tagArray.push(newValue)
     })
-    newPostData = {...newPostData, tags: tagArray, userId : activeID, creationDate: moment().format('DD/MM/YYYY'), creationTime: moment().format('h:mm'), postId : Date.now()}
+    newPostData = {
+        ...newPostData,
+        tags: tagArray,
+        userId: activeID,
+        creationDate: moment().format('DD/MM/YYYY'),
+        creationTime: moment().format('h:mm'),
+        postId: Date.now()
+    }
     savePosts(newPostData)
 }
 $('.total-container').on('click', '#submit-new-post', newPost)
 
 //Dar likes al post
 
-const setNewLike = (event) =>{
+const setNewLike = (event) => {
     let allPostsToLike = getPosts()
     let postKeyToLike = event.target.dataset
     let numOfLikes = event.target.text
     console.log(numOfLikes)
     let postToLike = {}
-    for(post in allPostsToLike){
-        post === postKeyToLike.postkey ? postToLike = {...postToLike, [post]: allPostsToLike[post]} : null
+    for (post in allPostsToLike) {
+        post === postKeyToLike.postkey ? postToLike = {
+            ...postToLike,
+            [post]: allPostsToLike[post]
+        } : null
     }
-    Object.values(postToLike)[0].likes +=1
+    Object.values(postToLike)[0].likes += 1
     let likes = Object.keys(Object.values(postToLike)[0])[5]
     let numOfLikesUploaded = Object.values(postToLike)[0].likes
     console.log(likes + ' : ' + numOfLikesUploaded)
@@ -711,41 +782,87 @@ const setNewLike = (event) =>{
     location.reload()
 
 }
-$('.total-container').on('click', '.likes-anchor', function(event){
+$('.total-container').on('click', '.likes-anchor', function (event) {
     let imgHeart = event.target.parentElement.firstElementChild
     let originalHeart = event.target.parentElement.children[1]
     $(originalHeart).animate({
-        width:'toggle',
-        height : 'toggle'
-    },30)
+        width: 'toggle',
+        height: 'toggle'
+    }, 30)
     $(imgHeart).animate({
-        width:'toggle',
-        height : 'toggle'
-    },30)
+        width: 'toggle',
+        height: 'toggle'
+    }, 30)
     setNewLike(event)
 })
 //search by tag button
-$('.total-container').on('click','.btn-tag',function(event){
+$('.total-container').on('click', '.btn-tag', function (event) {
     event.preventDefault()
-    let searchresult = searchByTag(event.target.dataset.tagName,getPosts())
+    let searchresult = searchByTag(event.target.dataset.tagName, getPosts())
     printHome(searchresult)
 })
 
 //go to single Post by Key
-$('.total-container').on('click','.btn-title',function(event){
+$('.total-container').on('click', '.btn-title', function (event) {
     event.preventDefault()
-    singlePostKey=event.target.dataset.postKey;
-    loadView("./views/post.html?", "post")    
+    singlePostKey = event.target.dataset.postKey;
+    loadView("./views/post.html?", "post")
 })
 
 //search by tag button in Single Post
-$('.total-container').on('click','.btn-post-tag',function(event){
+$('.total-container').on('click', '.btn-post-tag', function (event) {
     event.preventDefault()
-    let searchresult = searchByTag(event.target.dataset.tagName,getPosts())
-    principalContainer.load( "views/home.html",()=>{
+    let searchresult = searchByTag(event.target.dataset.tagName, getPosts())
+    principalContainer.load("views/home.html", () => {
         printHome(searchresult)
     });
 })
 
+const printAside = () => {
+    //TEMP
+    postList = getPosts()
+    $('.right-aside-wrapper').empty()
+    //console.log(activeID)
+    let firstPostKey = Object.keys(postList)[4]
+    console.log(firstPostKey)
+    //let activeUser = filterByID(activeID, getUsers())
+    for (post in postList) {
+        const {
+            content,
+            coverUrl,
+            creationDate,
+            creationTime,
+            duration,
+            likes,
+            postId,
+            tags,
+            title,
+            userId
+        } = postList[post]
 
+        if (post === firstPostKey) {
+            let asideFirst =` <img class="w-100" src="${coverUrl}" alt="card-img">
 
+            <header class="py-3 border-bottom">
+              <a href="#">
+                <h3>Stories (${Object.keys(postList).length})</h3>
+              </a>
+            </header>`
+        $('.right-aside-wrapper').prepend(asideFirst)
+        } else {
+            let asides = `<a href="#">
+            <div class="py-3 px-3 border-bottom">
+              ${title}
+            </div>
+          </a>`
+        $('.right-aside-wrapper').append(asides)
+        }
+    }
+    let asideButtons = `<div class="py-4 d-flex flex-column">
+    <button class="btn btn-blue mb-3 mx-auto w-75">
+      Share your story
+    </button>
+    <button class="btn btn-grey mx-auto w-75">See all posts</button>
+  </div>`
+      $('.right-aside-wrapper').append(asideButtons)
+}
