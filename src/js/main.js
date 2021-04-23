@@ -70,6 +70,7 @@ const saveReplies = (objectReply) => {
         data: JSON.stringify(objectReply),
         success: (response) => {
             console.log(response);
+            printReplies(objectReply.post);
         },
         error: (error) => {
             console.log(error);
@@ -333,7 +334,20 @@ const filterByDate = (numberOfDays,time) => {
     return postFilteredByTime
 
 }
-
+//count Replies by Post
+const countRepliesByPost = (postId) => {  
+    let replies = getReplies();
+    let repliesByPost ={}   
+    let countReplies = 0;
+    for (key in replies) { 
+        if (replies[key].post === postId) {
+          values=replies[key]
+          repliesByPost = {...repliesByPost, [key] : values }
+        }
+    }
+    countReplies =Object.keys(repliesByPost).length
+    return countReplies
+}
 const printHome = (allPostsToPrint) => {
     $('.post-container').empty()
     let firstPostKey = Object.keys(allPostsToPrint)[0]
@@ -352,7 +366,7 @@ const printHome = (allPostsToPrint) => {
             userId
         } = allPostsToPrint[key]
         let detalle = '#'
-        let numberOfComments = 22222222
+        let numberOfComments = 0
         postAuthor = getAutor(userId, getUsers())
         if (key === firstPostKey) {
             let principalPost =
@@ -386,7 +400,7 @@ const printHome = (allPostsToPrint) => {
                         </div>
                         <div>
                             <img src="Images/comments.svg" alt="comment" />
-                            <span>${numberOfComments}</span>
+                            <span class="numberOfComments">${numberOfComments}</span>
                             <span class="d-none d-md-inline">comments</span>
                         </div>
                     </div>
@@ -428,7 +442,7 @@ const printHome = (allPostsToPrint) => {
                     </div>
                     <div>
                     <img src="Images/comments.svg" alt="comment" class="ml" />
-                        <span>${numberOfComments}</span>
+                        <span class="numberOfComments">${numberOfComments}</span>
                         <span class="d-none d-md-inline">comments</span>
                     </div>
                 </div>
@@ -446,6 +460,9 @@ const printHome = (allPostsToPrint) => {
                 $(`#post-${postId} .category-wrapper`).append(`<li class="badge ${tag.replace("#", "").toLowerCase()} mr-1 p-badge font-weight-normal text-size-icon"
                 ><a href="#" data-tag-name="${tag}" class="btn-tag">${tag}</a></li>`)
         })
+        numberOfComments = countRepliesByPost(postId)
+        $(`#post-${postId} .numberOfComments`).html(numberOfComments) 
+        
     }
 }
 
@@ -564,6 +581,73 @@ const getPost = (postKey) => {
   return dbPost;
 }; 
 
+//Print replies function
+const printReplies = (postId) => {
+    $(`#replies-wrapper li`).remove();
+    let replies = getReplies();
+    let repliesByPost = {};
+    
+    let countReplies = 0;
+
+    for (key in replies) { 
+        if (replies[key].post === postId) {
+          values=replies[key]
+          repliesByPost = {...repliesByPost, [key] : values }
+        }
+    }
+
+    console.log('replies  ', replies)
+    console.log('replies  ', repliesByPost)
+    countReplies =Object.keys(repliesByPost).length
+    
+    if(countReplies > 0){ 
+        $('.count-replies').html(countReplies)  
+        for (key in repliesByPost) {
+        
+            
+            //let user = getUser(replies[key].userId);
+            //console.log(user.avatar);
+            // console.log("traeusercomment", user);
+    
+            //let h3Id = Date.now();
+    
+            let liHTML = `<li class="list-group-item">
+                                    <div class="reply-box">
+                                        <h4 id="reply-${repliesByPost[key].replyId}"></h4>
+                                        
+                                        <p class="mb-0 text-muted comment-text">${repliesByPost[key].content}</p>
+                                        <p class="mb-0 text-right text-muted comment-date">
+                                            <span class="date">${repliesByPost[key].creationDate}</span> 
+                                            <span class="time">${repliesByPost[key].creationTime}</span>   
+                                        </p>
+                                    </div>
+                                </li>
+                            `;
+            
+            let repWrapp = `#replies-wrapper`;  
+            $(repWrapp).prepend(liHTML);    
+            //print user
+            postAuthor = getAutor(repliesByPost[key].userId, getUsers())
+            userInfo=`
+            <div class="d-flex flex-row mb-3">
+            <img
+              src="${postAuthor.userPic}"
+              alt="${postAuthor.userName}"
+              class="img-profile rounded-circle mr-2"
+            />
+            <a class="my-auto text-color-title">
+                ${postAuthor.userName} 
+            </a>
+          </div>
+            `
+            //let userinfo = printUser(replies[key].userId);
+            $(`#reply-${repliesByPost[key].replyId}`).append(userInfo);
+        
+        }
+        
+    }
+  };
+
 const printSinglePost = (data) => {
 
     postAuthor = getAutor(data.userId, getUsers())  
@@ -583,10 +667,13 @@ const printSinglePost = (data) => {
     data.tags.forEach( tag =>{
         $('.post-wrapper .post-tags').append(`<span class="badge ${tag.replace("#", "").toLowerCase()} mr-2 p-badge font-weight-normal text-size-icon"><a href="#" data-tag-name="${tag}" class="btn-post-tag">${tag}</a></span>`)
     })    
-            
-    $(".post-wrapper .post-user-avatar").attr("src", activeUser.userPic);
+    if(activeID>0){
+        userComment = getAutor(activeID, getUsers())        
+        $(".post-wrapper .post-user-avatar").attr("src", userComment.userPic);
+    }
+    
     $(".btn-save-replie").attr("data-commentkey", data.postId);
-    //printReplies(data.postId);
+    printReplies(data.postId);
 }
     //printSinglePost(getPost(postKey));
     //printSinglePost(getPost("-MYsPw9-8lhLZSCvtuRs"));
@@ -747,5 +834,32 @@ $('.total-container').on('click','.btn-post-tag',function(event){
     });
 })
 
+$('.total-container').on('click','.btn-save-replie',function(event){
+    event.preventDefault()
+    
+    let postId = $(event.target).data("commentkey");
+    let comment = $(`#post-reply`).val();
+    
+    if(activeID>0){
+        newReply={
+            content: comment,
+            creationDate: moment().format("l"),
+            creationTime: moment().format("LT"),
+            post: postId,
+            userId: activeID,
+            replyId: Date.now()
+        }
+        console.log(postId,comment,activeID,newReply)
+        $(`#post-reply`).val("");
+        saveReplies(newReply)
+    }else{
+        console.log("Debe loguearse para poder commentar",activeID)
+        logIn=confirm('Para comentar debe iniciar sessión, ¿Desea iniciar seción ahora?')
+        if(logIn){
+            loadView('./views/login.html','login')
+        }
+    }
+    
+})
 
 
