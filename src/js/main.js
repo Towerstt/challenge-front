@@ -216,6 +216,7 @@ const loadView = (url, view) => {
     principalContainer.load(url, () => {
         switch (view) {
             case "login":
+                printAside(getPosts())
                 $('.bttn-login').addClass('d-sm-inline')
                 $('.bttn-write').removeClass('d-sm-inline')
                 $('.bttn-createAccount').addClass('d-sm-inline')
@@ -226,7 +227,7 @@ const loadView = (url, view) => {
                     event.preventDefault()
                     activeUser = checkUserExist()
                 })
-                printAside(getPosts())                
+                                
                 break
             case "createUser":
                 $('.bttn-login').removeClass('d-sm-inline')
