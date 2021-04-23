@@ -131,7 +131,8 @@ const deleteUser = (key) => {
 let principalContainer = $('.total-container')
 let activeUser = {}
 $(document).ready(function () {
-    loadView("./views/landing.html", "landing")
+    //loadView("./views/landing.html", "landing")
+    loadView("./views/post.html", "post")
 })
 $('.bttn-write').click(() => {
     loadView('./views/createPost.html')
@@ -243,8 +244,9 @@ const filterByDate = tps => {
 }
 
 
-const printHome = () => {
-    let allPostsToPrint = getPosts()
+const printHome = (allPostsToPrint) => {
+    //let allPostsToPrint = getPosts()
+    $('.total-container .post-container').empty()
     let firstPostKey = Object.keys(allPostsToPrint)[0]
     let postAuthor
     for (key in allPostsToPrint){
@@ -254,7 +256,7 @@ const printHome = () => {
         let numberOfReactions = 11111111
         let numberOfComments = 22222222
         postAuthor = getAutor(userId, getUsers())  
-        let allTags = tags.split(',')
+        let allTags = tags//.split(',')
 
         if(key === firstPostKey){
             let principalPost = 
@@ -265,7 +267,7 @@ const printHome = () => {
                 </a>
                 <div class="d-flex mt-3">
                 <!--Imagen de perfil-->
-                    <img src=${postAuthor.userPic} alt="" class="rounded-circle profile-p ml-3" />
+                    <img src="${postAuthor.userPic}" alt="" class="rounded-circle profile-p ml-3" />
                     <div class="author-info ml-2">
                     <p>${postAuthor.userName}</p>
                     <p>${creationDate}${creationTime}</p>
@@ -353,3 +355,79 @@ const printHome = () => {
 
 }
 
+//Function Search Posts
+const searchPosts = (search, posts) =>{
+    let matchPosts = {};
+    let regExp = new RegExp(search, 'gi');
+    for (key in posts) { 
+      if( regExp.test(posts[key].title) ){
+        values=posts[key]
+        matchPosts = {...matchPosts, [key] : values }
+      }
+    }
+    return matchPosts;  
+  }  
+  
+  $("#inputSearch").keypress(function(e) {
+    if(e.which == 13) {
+       let searchresult = searchPosts(this.value,getPosts())
+       console.log(searchresult)
+       //$('total-container .post-container').empty()
+       printHome(searchresult)
+       //despues pintar otra vez los posts filtrados
+    }
+  });
+
+//Detail Post
+//let urlParams = new URLSearchParams(window.location.search);
+//let postKey = urlParams.get("postkey");
+
+//console.log(postKey);
+
+const getPost = (postKey) => {
+  let dbPost = {};
+  $.ajax({
+    method: "GET",
+    url: `https://ajaxclass-1ca34.firebaseio.com/11g/teamd/posts/${postKey}.json`,
+    success: (response) => {
+      console.log(response);
+      dbPost = response;
+      
+    },
+    error: (error) => {
+      console.log(error);
+    },
+    async: false,
+  });
+
+  //console.log("getPost", dbPost);
+  return dbPost;
+}; 
+
+const printSinglePost = (data) => {
+
+    postAuthor = getAutor(data.userId, getUsers())  
+    console.log(data.content);
+    console.log(data.coverUrl);
+    $(".post-wrapper .post-cover-img").attr("src", data.coverUrl);
+    $(".post-wrapper .post-title").html(data.title);
+
+    $(".post-wrapper .post-tags").html(data.title);
+    
+    $(".post-wrapper .content").html(data.content);
+    $(".post-wrapper .post-avatar").attr("src", postAuthor.userPic);
+    let dateCreationHtml = `${postAuthor.userName} <span class="ml-3 " >${data.creationDate} ・ ${data.duration} read</span>`;
+    $(".post-wrapper .post-creation").html(dateCreationHtml);
+    
+    $('.post-wrapper .post-tags').html("")  
+    data.tags.forEach( tag =>{
+        $('.post-wrapper .post-tags').append(`<span class="badge ${tag.replace("#", "").toLowerCase()} mr-2 p-badge font-weight-normal text-size-icon"
+        >${tag}</span>`)
+    })    
+            
+    $(".post-wrapper .post-user-avatar").attr("src", activeUser.userPic);
+    $(".btn-save-replie").attr("data-commentkey", data.postId);
+    //printReplies(data.postId);
+  };
+  //printSinglePost(getPost(postKey));
+  //printSinglePost(getPost("-MYsPw9-8lhLZSCvtuRs"));
