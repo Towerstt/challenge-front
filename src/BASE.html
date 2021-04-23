@@ -65,8 +65,9 @@
     <div class="collapse-2" id="right-menu">
       <div class="container px-2 mt-3 rounded" style="border: 1px solid black; box-shadow: 2px 2px 2px 2px black">
         <div class="row flex-column pt-3 pl-2 container-login">
-          <div class="col-12 my-3">Log in</div>
-          <div class="col-12 mb-3">Create Account</div>
+          <div class="col-12 my-3"><a id="login-a">Log in</a></div>
+          <div class="col-12 mb-3"><a id="create-user-a">Create Account</a>
+          </div>
         </div>
         <div class="row flex-column pt-3 pl-2 container-home">
           <div class="col-12 mb-2 font-weight-bold display" id="active-user-name" style="font-size: 1rem"></div>
@@ -77,7 +78,7 @@
           <div class="col-12 mb-3">Reading list</div>
           <div class="col-12 mb-2">Settings</div>
           <div class="bor pt-3 ml-1 mr-2"></div>
-          <div class="col-12 my-3">Sign Out</div>
+          <div class="col-12 my-3"><a id="sign-out">Sign Out</a></div>
         </div>
       </div>
     </div>
@@ -92,7 +93,7 @@
         <img class="h35i mt-1" src="Images/img-nav/icon-hamburger.svg" alt="hmg">
       </button>
       <div>
-        <a id="logo-anchor" href=""></a><img class="h70i ml-1 mt-1 ml-sm-2 mt-sm-2" src="Images/img-nav/logo.svg"
+        <a id="logo-anchor"></a><img id="devto-logo" class="h70i ml-1 mt-1 ml-sm-2 mt-sm-2" src="Images/img-nav/logo.svg"
           alt="Logo">
       </div>
       <input class=" d-none d-sm-inline mt-2 ml-3 rounded pl-2 " type="text" placeholder="Search..." id="inputSearch">
@@ -101,11 +102,8 @@
       class="right-wrpr d-flex justify-content-end justify-content-sm-around justify-content-lg-end align-items-center mt-1">
       <button class="bttn bttn-write d-none d-sm-inline rounded text-light border-0 ml-2 mt-1 mt-md-0 mr-lg-4">Write a
         post</button>
-
-       <!--bttn create User-->
+      <!--bttn create User-->
       <button class="bttn bttn-createAccount d-none d-sm-inline rounded text-light border-0 ml-2 mt-1 mt-md-0 mr-lg-4 add-user">Create Account</button>
-
-
       <button class="bttn bttn-login d-none d-sm-inline rounded text-light border-0 ml-2 mt-1 mt-md-0 mr-lg-4">Log
         In</button>
       <div>

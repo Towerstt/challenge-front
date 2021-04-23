@@ -13,15 +13,15 @@
     <title>Document</title>
 </head>
 <body>
-    <h1 class = "mt-5 text-center">Write a new post</h1>
-    <form class = "ml-5 mt-5 w-50">
+    <h1 class = "mt-2 text-center">Write a new post</h1>
+    <form class = "ml-5 mt-5 w-50" id='write-new-post'>
         <div class="form-group">
           <label for="exampleFormControlInput1">Post Name</label>
-          <input type="text" class="form-control" id="set-post-name">
+          <input type="text" class="form-control" id="title">
         </div>
         <div class="form-group">
             <label for="exampleFormControlInput1">Cover Image</label>
-            <input type="text" class="form-control" id="set-post-cover">
+            <input type="text" class="form-control" id="coverUrl">
         </div>
         <label for="exampleFormControlSelect2">Categories</label>
         <div class="form-group">
@@ -52,24 +52,26 @@
         </div>
         <div class="form-group">
           <label for="exampleFormControlTextarea1">Write your post content here ...</label>
-          <textarea class="form-control" id="set-post-content" rows="3"></textarea>
+          <textarea class="form-control" id="content" rows="3"></textarea>
         </div>
         <div class="form-group">
             <label for="exampleFormControlSelect1">Reading Time</label>
-            <select class="form-control" id="set-reading-time">
-              <option>1 min</option>
-              <option>2 mins</option>
-              <option>3 mins</option>
-              <option>4 mins</option>
-              <option>5 mins</option>
+            <select class="form-control custom-select" id="duration">
+              <option value="1 min read">1 min</option>
+              <option value="2 min read">2 mins</option>
+              <option value="3 min read">3 mins</option>
+              <option value="4 min read">4 mins</option>
+              <option value="5 min read">5 mins</option>
+              <option value="6 min read">6 mins</option>
+              <option value="7 min read">7 mins</option>
+              <option value="8 min read">8 mins</option>
+              <option value="9 min read">9 mins</option>
+              <option value="10 min read">10 mins</option>
             </select>
           </div>
+          <button id='submit-new-post'type="button" class="btn btn-info mt-3 mb-5">Submit New Post</button>
       </form>
 
-
-
-
-    
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"
   integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"

@@ -53,13 +53,13 @@
           <h3 class="pt-2">Posts</h3>
           <!-- Select Box -->
           <div class="select-box d-md-none">
-            <select name="select" class="select">
-              <option disable selected>Feed</option>
-              <option>Week</option>
-              <option>Month</option>
-              <option>Year</option>
-              <option>Infinity</option>
-              <option>Latest</option>
+            <select name="select-time" class="select" id='select-time'>
+              <option value="feed" selected>Feed</option>
+              <option value="week">Week</option>
+              <option value="month">Month</option>
+              <option value="year">Year</option>
+              <option value='infinity'>Infinity</option>
+              <option value='latest'>Latest</option>
             </select>
           </div>
           <ul class="nav d-none d-md-flex time-btn-wrapper">
@@ -76,7 +76,7 @@
               <a class="nav-link my-0 p-0 mx-2 mx-lg-1 text-black" id = 'btn-year'>Year</a>
             </li>
             <li class="nav-item rounded-top">
-              <a class="nav-link my-0 p-0 mx-2 mx-lg-1 text-black" id = 'btn-feed'>Infinity</a>
+              <a class="nav-link my-0 p-0 mx-2 mx-lg-1 text-black" id = 'btn-infinity'>Infinity</a>
             </li>
             <li class="nav-item rounded-top">
               <a class="nav-link my-0 p-0 mx-2 mx-lg-1 text-black" id = 'btn-latest'>Latest</a>

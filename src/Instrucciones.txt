@@ -4,19 +4,24 @@ OK0.- Login - Datos de usuario precargados
 OK1.- Tener datos de un usuario fake
 OK2.- Poder crear un post ( el post debe contener la información del usuario que la escribió )
 OK3.- Los post deben estar organizados por categorías
-OKH4.- Activar los filtros de feed, week, month, year, infinity, latest - Todo es la misma un función
-OKB5.- Activar el search box, filtrando por título del post
+OK4.- Activar los filtros de feed, week, month, year, infinity, latest - Todo es la misma un función
+OK5.- Activar el search box, filtrando por título del post
 B6.- vista del detalle del post + info de detalle del autor + replies
 B7.- agregar comentarios al post ( deben incluir la información del usuario fake )
 H8.- agregarle likes (Animación del corazón), replies al post
 BR9.- Cargar más posts
-H10.- Arreglar el Login
-H11.- Agregar botón al Create Post
+
+OK10.- Arreglar el Login
+OK11.- Agregar botón al Create Post
+
 B12.- Cargar la vista con event.dataset.key (Hacer la vista y configurarla)
+
 H13.- Aside Derecho
-H14.- HAbilitar botones del nav, asides, y footer
+OK14.- HAbilitar botones del nav, asides, y footer
+
 B15.- Habilitar hashtags del aside izquierdo
 B16.- Arreglar los tags malhechos de Hugo y darles funcionalidad
-B17.- Arreglar la base de datos de users
-H18.- Arreglar filtros por fecha para móvil
-H19.- SignOut
+OK17.- Arreglar la base de datos de users
+
+OK18.- Arreglar filtros por fecha para móvil
+OK19.- SignOut
