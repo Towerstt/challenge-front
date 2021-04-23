@@ -545,10 +545,6 @@ const printSinglePost = (data) => {
         getNewAccount()
     })
 
-
-
-
-
 $('.total-container').on('click','#btn-feed',function(event){
     printHome(getPosts())
 })
