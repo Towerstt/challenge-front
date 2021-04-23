@@ -8,15 +8,15 @@ OK4.- Activar los filtros de feed, week, month, year, infinity, latest - Todo es
 OK5.- Activar el search box, filtrando por título del post
 B6.- vista del detalle del post + info de detalle del autor + replies
 B7.- agregar comentarios al post ( deben incluir la información del usuario fake )
-H8.- agregarle likes (Animación del corazón), replies al post
+OK8.- agregarle likes (Animación del corazón), replies al post
 BR9.- Cargar más posts
-H10.- Arreglar el Login
-H11.- Agregar botón al Create Post
+OK10.- Arreglar el Login
+OK11.- Agregar botón al Create Post
 OKB12.- Cargar la vista con event.dataset.key (Hacer la vista y configurarla)
-H13.- Aside Derecho
-H14.- HAbilitar botones del nav, asides, y footer
+OK13.- Aside Derecho
+OK14.- HAbilitar botones del nav, asides, y footer
 OKB15.- Habilitar hashtags del aside izquierdo
 OKB16.- Arreglar los tags malhechos de Hugo y darles funcionalidad
 OKB17.- Arreglar la base de datos de users
-H18.- Arreglar filtros por fecha para móvil
-H19.- SignOut
+OK18.- Arreglar filtros por fecha para móvil
+OK19.- SignOut

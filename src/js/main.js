@@ -822,9 +822,7 @@ const printAside = () => {
     //TEMP
     postList = getPosts()
     $('.right-aside-wrapper').empty()
-    //console.log(activeID)
     let firstPostKey = Object.keys(postList)[4]
-    console.log(firstPostKey)
     //let activeUser = filterByID(activeID, getUsers())
     for (post in postList) {
         const {
@@ -841,7 +839,7 @@ const printAside = () => {
         } = postList[post]
 
         if (post === firstPostKey) {
-            let asideFirst =` <img class="w-100" src="${coverUrl}" alt="card-img">
+            let asideFirst =` <a class = 'go-to-detail'><img class="w-100" src="${coverUrl}" alt="card-img" data-postkey=${post}></a>
 
             <header class="py-3 border-bottom">
               <a href="#">
@@ -850,7 +848,7 @@ const printAside = () => {
             </header>`
         $('.right-aside-wrapper').prepend(asideFirst)
         } else {
-            let asides = `<a href="#">
+            let asides = `<a href="#" class='go-to-detail' data-postkey=${post}>
             <div class="py-3 px-3 border-bottom">
               ${title}
             </div>
@@ -865,4 +863,10 @@ const printAside = () => {
     <button class="btn btn-grey mx-auto w-75">See all posts</button>
   </div>`
       $('.right-aside-wrapper').append(asideButtons)
+
+      $('.right-aside-wrapper').on('click', '.go-to-detail', function (event) {
+        event.preventDefault()
+        singlePostKey = event.target.dataset.postkey;
+        loadView("./views/post.html?", "post")
+    })
 }
