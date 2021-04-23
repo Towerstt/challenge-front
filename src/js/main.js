@@ -503,10 +503,15 @@ const searchPosts = (search, posts) =>{
   
   $("#inputSearch").keypress(function(e) {
     if(e.which == 13) {
-       let searchresult = searchPosts(this.value,getPosts())
+       let allPosts = getPosts() 
+       let searchresult = searchPosts(this.value,allPosts)
        console.log(searchresult)
        principalContainer.load( "views/home.html",()=>{
-            printHome(searchresult)
+            if(Object.keys(searchresult).length > 0){
+                printHome(searchresult)
+            }else{
+                printHome(allPosts)
+            }        
        });   
     }
   });
