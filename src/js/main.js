@@ -129,6 +129,36 @@ const getUsers = () => {
     return dbUsers;
 };
 
+const patchUser = (userKey, postKey) => {
+    let allPosts = getPosts()
+    let thisPost = filterByID(postId, allPosts)
+    let thisPostFavs = {}
+    console.log(thisPost)
+
+    for (post in allPosts) {
+        console.log([post], thisPost)
+        postKey === [post] ? thisPostFavs = {
+            ...thisPostFavs,
+            [post]: allPosts[post].favs
+        } : null
+    }
+    // $.ajax({
+    //     method:"PATCH",
+    //     data:JSON.stringify({'favs': thisPostFavs}),
+    //     url:`https://ajaxclass-1ca34.firebaseio.com/11g/teamd/users/${userKey}.json`,
+    //     success: response => {
+    //         console.log( response )
+    //         getUsers()
+    //     },
+    //     error: error => {
+    //         console.log ( error )
+    //     },
+    //     async: false,
+    // })
+}
+
+
+
 const deleteUser = (key) => {
     $.ajax({
         method: "DELETE",
@@ -157,6 +187,18 @@ const getAutor = (userId, users) => {
     return newUser;
 };
 
+const filterByID = (id, coll) => {
+    let userFiltered = {}
+    for (user in coll) {
+        coll[user].userId === id ? userFiltered = {
+            ...userFiltered,
+            [user]: coll[user]
+        } : null
+    }
+    return userFiltered
+}
+
+
 let principalContainer = $('.total-container')
 let activeUser = {}
 let singlePostKey = ''
@@ -183,7 +225,8 @@ const loadView = (url, view) => {
                 $('.checkuser').click((event) => {
                     event.preventDefault()
                     activeUser = checkUserExist()
-                })                
+                })
+                printAside(getPosts())                
                 break
             case "createUser":
                 $('.bttn-login').removeClass('d-sm-inline')
@@ -208,7 +251,7 @@ const loadView = (url, view) => {
                 $('.container-home').addClass('d-none')
                 $('.container-login').removeClass('d-none')
                 printHome(getPosts())
-                
+                printAside(getPosts())
                 break
 
             case "store":
@@ -232,6 +275,7 @@ const loadView = (url, view) => {
                     loadView("./views/createPost.html", "createPost")
                 })
                 printHome(getPosts())
+                printAside(getPosts())
                 
                 break
 
@@ -670,6 +714,8 @@ const printSinglePost = (data) => {
     if(activeID>0){
         userComment = getAutor(activeID, getUsers())        
         $(".post-wrapper .post-user-avatar").attr("src", userComment.userPic);
+        $(".total-container .perfil-avatar").attr("src", userComment.userPic);
+        $(".total-container .perfil-name").attr("src", userComment.userPic);
     }
     
     $(".btn-save-replie").attr("data-commentkey", data.postId);
@@ -862,4 +908,59 @@ $('.total-container').on('click','.btn-save-replie',function(event){
     
 })
 
+const printAside = () => {
+    //TEMP
 
+    
+    postList = getPosts()
+    $('.right-aside-wrapper').empty()
+    let firstPostKey = Object.keys(postList)[4]
+    //let activeUser = filterByID(activeID, getUsers())
+    for (post in postList) {
+        const {
+            content,
+            coverUrl,
+            creationDate,
+            creationTime,
+            duration,
+            likes,
+            postId,
+            tags,
+            title,
+            userId
+        } = postList[post]
+
+        if (post === firstPostKey) {
+            let asideFirst =` <a class ='go-to-detail'><img class="w-100" src="${coverUrl}" alt="card-img" data-postkey="${post}"></a>
+
+            <header class="py-3 border-bottom">
+              <a href="#">
+                <h3>Stories (${Object.keys(postList).length})</h3>
+              </a>
+            </header>`
+        $('.right-aside-wrapper').prepend(asideFirst)
+        } else {
+            let asides = `<a href="#" class="go-to-detail" >
+            <div class="py-3 px-3 border-bottom"  data-postkey="${post}">
+              ${title}
+            </div>
+          </a>`
+        $('.right-aside-wrapper').append(asides)
+        }
+    }
+    let asideButtons = `<div class="py-4 d-flex flex-column">
+    <button type="button" class="btn btn-blue mb-3 mx-auto w-75">
+      Share your story
+    </button>
+    <button type="button" class="btn btn-grey mx-auto w-75">See all posts</button>
+  </div>`
+    $('.right-aside-wrapper').append(asideButtons)
+
+    
+}
+$('.total-container').on('click', '.go-to-detail', function (event) {
+    event.preventDefault()
+    singlePostKey = event.target.dataset.postkey;
+    //console.log("buton aside", event.target.dataset.postkey)
+    loadView("./views/post.html", "post")
+})
