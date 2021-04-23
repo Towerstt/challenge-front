@@ -17,3 +17,4 @@ H13.- Aside Derecho
 H14.- HAbilitar botones del nav, asides, y footer
 B15.- Habilitar hashtags del aside izquierdo
 B16.- Arreglar los tags malhechos de Hugo y darles funcionalidad
+B17.- Arreglar la base de datos de users
