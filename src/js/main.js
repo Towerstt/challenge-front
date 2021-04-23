@@ -141,6 +141,7 @@ const getAutor = (userId, users) => {
 
 let principalContainer = $('.total-container')
 let activeUser = {}
+let singlePostKey = ''
 $(document).ready(function () {
     loadView("./views/landing.html", "landing")
     
@@ -187,7 +188,7 @@ const loadView = (url, view) => {
                 $('.container-home').addClass('d-none')
                 $('.container-login').removeClass('d-none')
                 printHome(getPosts())
-                printTags()
+                
                 break
 
             case "store":
@@ -209,7 +210,7 @@ const loadView = (url, view) => {
                     loadView("./views/createPost.html", "createPost")
                 })
                 printHome(getPosts())
-                printTags()
+                
                 break
 
             case "createPost":
@@ -227,6 +228,7 @@ const loadView = (url, view) => {
                 $('.bttn-write').click(() => {
                     loadView("./views/createPost.html", "createPost")
                 })
+                printSinglePost(getPost(singlePostKey))
                 break
 
             default:
@@ -334,7 +336,7 @@ const printHome = (allPostsToPrint) => {
         postAuthor = getAutor(userId, getUsers())
         if (key === firstPostKey) {
             let principalPost =
-                `<div class="post w-100 border bg-white rounded bg-white mt-2 mb-2 shadow-sm">
+                `<div class="post w-100 border bg-white rounded bg-white mt-2 mb-2 shadow-sm" id="post-${postId}">
                 <!--Imagen principal-->
                 <a href="${detalle}">
                     <img class="w-100" src="${coverUrl}" alt="post-img" />
@@ -348,7 +350,7 @@ const printHome = (allPostsToPrint) => {
                     </div>
                 </div>
                 <a href="${detalle}">
-                    <h1 class="ml-3 font-weight-bold">${title}</h1>
+                    <h1 class="ml-3 font-weight-bold"><a href="#" data-post-key="${key}" class="btn-title">${title}</a></h1>
                 </a>
                 <ul class="h-post d-flex w-100 flex-wrap category-wrapper" data-postId = ${postId}>
                     <li><a href="#">Primer Tag de Prueba</a></li>
@@ -373,10 +375,12 @@ const printHome = (allPostsToPrint) => {
                     </div>
                 </div>
             </div>`
+
             $('.post-container').prepend(principalPost)
+            
         } else {
             let secondaryPosts =
-                `<div class="post rounded mt-2 bg-white mb-2 shadow-sm">
+                `<div class="post rounded mt-2 bg-white mb-2 shadow-sm" id="post-${postId}">
             <!--Imagen principal-->
             <div class="d-flex mt-3">
                 <!--Imagen de perfil-->
@@ -387,7 +391,7 @@ const printHome = (allPostsToPrint) => {
                 </div>
             </div>
             <a href="#">
-                <h1 class="ml-3 font-weight-bold">${title}</h1>
+                <h1 class="ml-3 font-weight-bold"><a href="#" data-post-key="${key}" class="btn-title">${title}</a></h1>
             </a>
             <ul class="h-post d-flex w-100 flex-wrap category-wrapper" data-postId = ${postId}>
                 <li><a href="#">Primer Tag de Prueba</a></li>
@@ -414,10 +418,15 @@ const printHome = (allPostsToPrint) => {
         </div>`
             $('.post-container').append(secondaryPosts)
         }
+        $(`#post-${postId} .category-wrapper`).html("")  
+            tags.forEach( tag =>{
+                $(`#post-${postId} .category-wrapper`).append(`<li class="badge ${tag.replace("#", "").toLowerCase()} mr-1 p-badge font-weight-normal text-size-icon"
+                ><a href="#" data-tag-name="${tag}" class="btn-tag">${tag}</a></li>`)
+        })
     }
 }
 
-const printTags = () => {
+/*const printTags = () => {
     let allPostsToPrint = getPosts()
     for (key in allPostsToPrint) {
         const {
@@ -439,7 +448,7 @@ const printTags = () => {
             })
         }
     }
-}
+}*/
 
 
 ////Create Account
@@ -474,6 +483,20 @@ const searchPosts = (search, posts) =>{
         values=posts[key]
         matchPosts = {...matchPosts, [key] : values }
       }
+    }
+    return matchPosts;  
+  }
+  
+  const searchByTag = (tagsearch, posts) =>{
+    let matchPosts = {};
+    let regExp = new RegExp(tagsearch, 'gi');
+    for (key in posts) { 
+        posts[key].tags.forEach(tag =>{
+            if( regExp.test(tag) ){
+                values=posts[key]
+                matchPosts = {...matchPosts, [key] : values }
+            }
+        })      
     }
     return matchPosts;  
   }  
@@ -531,8 +554,7 @@ const printSinglePost = (data) => {
     
     $('.post-wrapper .post-tags').html("")  
     data.tags.forEach( tag =>{
-        $('.post-wrapper .post-tags').append(`<span class="badge ${tag.replace("#", "").toLowerCase()} mr-2 p-badge font-weight-normal text-size-icon"
-        >${tag}</span>`)
+        $('.post-wrapper .post-tags').append(`<span class="badge ${tag.replace("#", "").toLowerCase()} mr-2 p-badge font-weight-normal text-size-icon"><a href="#" data-tag-name="${tag}" class="btn-post-tag">${tag}</a></span>`)
     })    
             
     $(".post-wrapper .post-user-avatar").attr("src", activeUser.userPic);
@@ -561,9 +583,28 @@ $('.total-container').on('click','#btn-latest',function(event){
     printHome(filterByDate(7, 'days'))
 })
 
+//search by tag button
+$('.total-container').on('click','.btn-tag',function(event){
+    event.preventDefault()
+    let searchresult = searchByTag(event.target.dataset.tagName,getPosts())
+    printHome(searchresult)
+})
 
+//go to single Post by Key
+$('.total-container').on('click','.btn-title',function(event){
+    event.preventDefault()
+    singlePostKey=event.target.dataset.postKey;
+    loadView("./views/post.html?", "post")    
+})
 
-
+//search by tag button in Single Post
+$('.total-container').on('click','.btn-post-tag',function(event){
+    event.preventDefault()
+    let searchresult = searchByTag(event.target.dataset.tagName,getPosts())
+    principalContainer.load( "views/home.html",()=>{
+        printHome(searchresult)
+    });
+})
 
 
 
