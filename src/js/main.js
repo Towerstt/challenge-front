@@ -564,3 +564,10 @@ $('.total-container').on('click','#btn-year',function(event){
 $('.total-container').on('click','#btn-latest',function(event){
     printHome(filterByDate(7, 'days'))
 })
+
+
+
+
+
+
+
