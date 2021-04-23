@@ -154,6 +154,19 @@ const loadView = (url, view) => {
                     activeUser = checkUserExist()
                 })
                 break
+            case "createUser":
+                    //alert("cargando user")
+                    $('.bttn-write').text("LOG IN")
+                    $('.bttn-write').attr('disabled', true)
+                    $('#avt').attr('src', 'https://image.freepik.com/vector-gratis/perfil-avatar-hombre-icono-redondo_24640-14044.jpg')
+                    $('.container-home').addClass('d-none')
+                    $('.container-login').removeClass('d-none')
+                    /*$("#saveAccount").click(()=>{
+                        saveUsers(newAccount)
+                        loadView("./views/home.html", "home")
+                    })*/
+
+                    break
             case "landing":
                 $('.bttn-write').text("LOG IN")
                 $('.bttn-write').attr('disabled', false) // Checar bont+on ára login
@@ -352,4 +365,36 @@ const printHome = () => {
 
 
 }
+
+
+////Create Account
+principalContainer.on("click", ".add-user", () => {
+    console.log( " agregando usuario ")
+})
+
+$('.bttn-createAccount').click(() => {
+    loadView('./views/createUser.html')//ingresa a la pag. create user
+})
+
+const getNewAccount = ()=>{
+    let newAccount={}
+
+    $("#newAccount input, #newAccount textarea").each(function (){
+        let property =this.id
+        let value = this.value
+        newAccount = {...newAccount, [property]:value}   
+    })
+
+    newAccount = {...newAccount, userId: new Date().getTime()}
+    console.log(newAccount)
+    saveUsers(newAccount)
+}
+
+principalContainer.on("click", "#saveAccount",() => {
+    getNewAccount()
+})
+
+
+
+
 
