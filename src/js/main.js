@@ -505,9 +505,9 @@ const searchPosts = (search, posts) =>{
     if(e.which == 13) {
        let searchresult = searchPosts(this.value,getPosts())
        console.log(searchresult)
-       //$('total-container .post-container').empty()
-       printHome(searchresult)
-       //despues pintar otra vez los posts filtrados
+       principalContainer.load( "views/home.html",()=>{
+            printHome(searchresult)
+       });   
     }
   });
 
