@@ -593,8 +593,10 @@ const searchPosts = (search, posts) =>{
        principalContainer.load( "views/home.html",()=>{
             if(Object.keys(searchresult).length > 0){
                 printHome(searchresult)
+                printAside(getPosts())
             }else{
                 printHome(allPosts)
+                printAside(getPosts())
             }        
        });   
     }
