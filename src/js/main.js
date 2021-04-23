@@ -323,16 +323,13 @@ const filterByDate = (numberOfDays,time) => {
 
         let soloporhoy = moment(moment().format('YYYY-MM-DD'))
         let week = moment(moment(moment().subtract(numberOfDays, time).calendar()).format('YYYY-MM-DD'))
-        console.log(week)
         let newDate = creationDate.split('/')
         creationDateToFilter = moment(newDate.reverse().join('-'))
         difHoy = soloporhoy.diff(week,'days')
         difPost = soloporhoy.diff(creationDateToFilter,'days')
         console.log('al día de hoy ' + difHoy + 'contra el post ' + difPost)
         difPost <= difHoy ? postFilteredByTime = {...postFilteredByTime, [k]: allPosts[k]} : null
-        console.log(postFilteredByTime)
     }
-    console.log(postFilteredByTime)
     return postFilteredByTime
 
 }
