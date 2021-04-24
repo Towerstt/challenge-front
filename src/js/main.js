@@ -356,7 +356,7 @@ const setActiveUser = userData => {
     $('#active-user-name').text(userName)
     $('#active-user-nickname').text(userNickname)
     activeID = userId
-    //loadView("./views/home.html", "home")
+    loadView("./views/home.html", "home")
 }
 
 
