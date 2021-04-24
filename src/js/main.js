@@ -103,11 +103,14 @@ const saveUsers = (objectUser) => {
         data: JSON.stringify(objectUser),
         success: (response) => {
             console.log(response);
+            let aU = getUser(response)
+            setActiveUser(aU)
         },
         error: (error) => {
             console.log(error);
         },
     });
+
 };
 
 const getUsers = () => {
@@ -128,6 +131,23 @@ const getUsers = () => {
 
     return dbUsers;
 };
+
+const getUser = (key) => {
+    let dbUser = {}
+    $.ajax({
+      method: "GET",
+      url: `https://ajaxclass-1ca34.firebaseio.com/11g/teamd/users/${key}/.json`,
+      success: (response) => {
+        dbUser = response;
+      },
+      error: (error) => {
+        console.log(error);
+      },
+      async: false,
+    });    
+    return dbUser;
+  };
+  
 
 const patchUser = (userKey, postKey) => {
     let allPosts = getPosts()
@@ -240,10 +260,6 @@ const loadView = (url, view) => {
                 $('#avt').attr('src', 'https://image.freepik.com/vector-gratis/perfil-avatar-hombre-icono-redondo_24640-14044.jpg')
                 $('.container-home').addClass('d-none')
                 $('.container-login').removeClass('d-none')
-                $("#saveAccount").click(()=>{
-                    saveUsers(newAccount)
-                    loadView("./views/home.html", "home")
-                })
                     break
             case "landing":
                 $('.bttn-login').addClass('d-sm-inline')
@@ -340,7 +356,7 @@ const setActiveUser = userData => {
     $('#active-user-name').text(userName)
     $('#active-user-nickname').text(userNickname)
     activeID = userId
-    loadView("./views/home.html", "home")
+    //loadView("./views/home.html", "home")
 }
 
 
@@ -738,6 +754,7 @@ const printSinglePost = (data) => {
     //printSinglePost(getPost("-MYsPw9-8lhLZSCvtuRs"));
     principalContainer.on("click", "#saveAccount",() => {
         getNewAccount()
+        loadView("./views/home.html", "home")
     })
 
 //FUNCIONALIDAD DE BOTONES
