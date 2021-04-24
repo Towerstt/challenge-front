@@ -103,7 +103,7 @@ const saveUsers = (objectUser) => {
         data: JSON.stringify(objectUser),
         success: (response) => {
             console.log(response);
-            let aU = getUser(response)
+            let aU = getUser(response.name)
             setActiveUser(aU)
         },
         error: (error) => {
