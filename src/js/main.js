@@ -182,6 +182,10 @@ const getAutor = (userId, users) => {
             newUser["userName"] = users[ky].userName;
             newUser["userPic"] = users[ky].userPic;
             newUser["userId"] = users[ky].userId;
+            newUser["description"] = users[ky].description;
+            newUser["location"] = users[ky].location;
+            newUser["work"] = users[ky].work;
+            newUser["userNickname"] = users[ky].userNickname;
         }
     }
     return newUser;
@@ -714,11 +718,17 @@ const printSinglePost = (data) => {
     data.tags.forEach( tag =>{
         $('.post-wrapper .post-tags').append(`<span class="badge ${tag.replace("#", "").toLowerCase()} mr-2 p-badge font-weight-normal text-size-icon"><a href="#" data-tag-name="${tag}" class="btn-post-tag">${tag}</a></span>`)
     })    
+    $(".total-container .perfil-avatar").attr("src", postAuthor.userPic);
+    console.log('autor',postAuthor)
+    $(".total-container .perfil-name").html(postAuthor.userNickname);
+    $(".total-container .perfil-description").html(postAuthor.description);
+    $(".total-container .perfil-work").html(postAuthor.work);
+    $(".total-container .perfil-location").html(postAuthor.location);
+    //$(".total-container .perfil-name").html(postAuthor.userNickname);
     if(activeID>0){
         userComment = getAutor(activeID, getUsers())        
         $(".post-wrapper .post-user-avatar").attr("src", userComment.userPic);
-        $(".total-container .perfil-avatar").attr("src", userComment.userPic);
-        $(".total-container .perfil-name").attr("src", userComment.userPic);
+        
     }
     
     $(".btn-save-replie").attr("data-commentkey", data.postId);
