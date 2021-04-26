@@ -566,16 +566,28 @@ $('.bttn-createAccount').click(() => {
 
 const getNewAccount = ()=>{
     let newAccount={}
-
+    let sendForm=true//validation
     $("#newAccount input, #newAccount textarea").each(function (){
         let property =this.id
         let value = this.value
-        newAccount = {...newAccount, [property]:value}   
+        if(value==""){ //validation
+            sendForm=false;
+            $(`#${property}Help`).removeAttr("hidden");
+        }else{
+            $(`#${property}Help`).attr("hidden", true);
+            newAccount = {...newAccount, [property]:value}   
+        }    
     })
+    if(sendForm){
+        newAccount = {...newAccount, userId: new Date().getTime()}
+        //console.log(newAccount)
+        $('#newAccount')[0].reset();
+        saveUsers(newAccount)
+        loadView("./views/home.html", "home")
+    }else{
+        return false
+    }
 
-    newAccount = {...newAccount, userId: new Date().getTime()}
-    console.log(newAccount)
-    saveUsers(newAccount)
 }
 
 //Function Search Posts
@@ -754,7 +766,7 @@ const printSinglePost = (data) => {
     //printSinglePost(getPost("-MYsPw9-8lhLZSCvtuRs"));
     principalContainer.on("click", "#saveAccount",() => {
         getNewAccount()
-        loadView("./views/home.html", "home")
+       
     })
 
 //FUNCIONALIDAD DE BOTONES
@@ -840,17 +852,36 @@ const newPost = () =>{
     let tagArray = []
     let dataContainer = $('#write-new-post input[type=text], #write-new-post textarea, #write-new-post select')
     let checkBoxContainer = $('#write-new-post input[type=checkbox]:checked')
+    let sendForm=true//validation
     dataContainer.each(function(){
         let containerKey = this.id
-        let containerValue = this.value
-        newPostData = {...newPostData, [containerKey]: containerValue}
+        let containerValue = this.value   
+        if(containerValue==""){ //validation
+            sendForm=false;
+            $(`#${containerKey}Help`).removeAttr("hidden");
+        }else{
+            $(`#${containerKey}Help`).attr("hidden", true);
+            newPostData = {...newPostData, [containerKey]: containerValue}      
+        }    
     })
     checkBoxContainer.each(function(){
         let newValue = '#' + this.value
         tagArray.push(newValue)
     })
-    newPostData = {...newPostData, tags: tagArray, userId : activeID, creationDate: moment().format('DD/MM/YYYY'), creationTime: moment().format('h:mm'), postId : Date.now()}
-    savePosts(newPostData)
+    if(tagArray.length<1){ //validation
+        sendForm=false;
+        $(`#tagsHelp`).removeAttr("hidden");
+    }else{
+        $(`#tagsHelp`).attr("hidden", true);
+    }
+    if(sendForm){
+        newPostData = {...newPostData, tags: tagArray, userId : activeID, creationDate: moment().format('DD/MM/YYYY'), creationTime: moment().format('h:mm'), postId : Date.now(), likes: 0}
+        $('#write-new-post')[0].reset()
+        savePosts(newPostData)
+        loadView('views/home.html','home')
+    }else{
+        return false
+    }    
 }
 $('.total-container').on('click', '#submit-new-post', newPost)
 
