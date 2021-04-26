@@ -30,6 +30,7 @@ const getPosts = () => {
 };
 const patchPost = (event, newVal, newKey) => {
     let postKey = event.target.dataset.postkey
+    let postLike = event.target
     console.log(postKey)
     console.log(newVal)
     $.ajax({
@@ -38,7 +39,12 @@ const patchPost = (event, newVal, newKey) => {
         url:`https://ajaxclass-1ca34.firebaseio.com/11g/teamd/posts/${postKey}.json`,
         success: response => {
             console.log( response )
-            getPosts()
+            //getPosts()
+            if(newKey==="likes"){
+                console.log(postLike)
+                $(postLike).html(response.likes)
+            }
+           
         },
         error: error => {
             console.log ( error )
@@ -902,8 +908,8 @@ const setNewLike = (event) =>{
     console.log(likes + ' : ' + numOfLikesUploaded)
     console.log(postToLike)
     patchPost(event, numOfLikesUploaded, likes)
-    location.reload()
-
+    //location.reload()
+    
 }
 $('.total-container').on('click', '.likes-anchor', function(event){
     let imgHeart = event.target.parentElement.firstElementChild
