@@ -32,6 +32,7 @@ const getPosts = () => {
 };
 const patchPost = (event, newVal, newKey) => {
     let postKey = event.target.dataset.postkey
+    let postLike = event.target
     console.log(postKey)
     console.log(newVal)
     $.ajax({
@@ -40,7 +41,12 @@ const patchPost = (event, newVal, newKey) => {
         url:`https://ajaxclass-1ca34.firebaseio.com/11g/teamd/posts/${postKey}.json`,
         success: response => {
             console.log( response )
-            getPosts()
+            //getPosts()
+            if(newKey==="likes"){
+                console.log(postLike)
+                $(postLike).html(response.likes)
+            }
+           
         },
         error: error => {
             console.log ( error )
@@ -247,8 +253,8 @@ const loadView = (url, view) => {
                 $('.bttn-write').removeClass('d-sm-inline')
                 $('.bttn-createAccount').addClass('d-sm-inline')
                 $('#avt').attr('src', 'https://image.freepik.com/vector-gratis/perfil-avatar-hombre-icono-redondo_24640-14044.jpg')
-                $('.container-home').addClass('d-none')
-                $('.container-login').removeClass('d-none')
+                $('.container-home').attr('left', '-100%')
+                $('.container-login').attr('left', '1.5%')
                 $('.checkuser').click((event) => {
                     event.preventDefault()
                     activeUser = checkUserExist()
@@ -260,8 +266,8 @@ const loadView = (url, view) => {
                 $('.bttn-write').removeClass('d-sm-inline')
                 $('.bttn-createAccount').removeClass('d-sm-inline')
                 $('#avt').attr('src', 'https://image.freepik.com/vector-gratis/perfil-avatar-hombre-icono-redondo_24640-14044.jpg')
-                $('.container-home').addClass('d-none')
-                $('.container-login').removeClass('d-none')
+                $('.container-home').attr('left', '-100%')
+                $('.container-login').attr('left', '1.5%')
                     break
             case "landing":
                 $('.bttn-login').addClass('d-sm-inline')
@@ -271,8 +277,8 @@ const loadView = (url, view) => {
                     loadView("./views/login.html", "login")
                 })
                 $('#avt').attr('src', 'https://image.freepik.com/vector-gratis/perfil-avatar-hombre-icono-redondo_24640-14044.jpg')
-                $('.container-home').addClass('d-none')
-                $('.container-login').removeClass('d-none')
+                $('.container-home').attr('left', '-100%')
+                $('.container-login').attr('left', '1.5%')
                 printHome(getPosts())
                 printAside(getPosts())
                 break
@@ -289,8 +295,8 @@ const loadView = (url, view) => {
                 break
 
             case "home":
-                $('.container-login').addClass('d-none')
-                $('.container-home').removeClass('d-none')
+                $('.container-login').attr('left', '-100%')
+                $('.container-home').attr('left', '1.5%')
                 $('.bttn-login').removeClass('d-sm-inline')
                 $('.bttn-write').addClass('d-sm-inline')
                 $('.bttn-createAccount').removeClass('d-sm-inline')
@@ -307,13 +313,13 @@ const loadView = (url, view) => {
                 $('.bttn-login').removeClass('d-sm-inline')
                 $('.bttn-write').removeClass('d-sm-inline')
                 $('.bttn-createAccount').removeClass('d-sm-inline')
-                $('.container-login').addClass('d-none')
-                $('.container-home').removeClass('d-none')
+                $('.container-login').attr('left', '-100%')
+                $('.container-home').attr('left', '1.5%')
                 break
 
             case "post":
-                $('.container-login').addClass('d-none')
-                $('.container-home').removeClass('d-none')
+                $('.container-login').attr('left', '-100%')
+                $('.container-home').attr('left', '1.5%')
                 $('.bttn-login').removeClass('d-sm-inline')
                 $('.bttn-write').addClass('d-sm-inline')
                 $('.bttn-createAccount').removeClass('d-sm-inline')
@@ -578,12 +584,27 @@ $('.bttn-createAccount').click(() => {
 
 const getNewAccount = ()=>{
     let newAccount={}
-
+    let sendForm=true//validation
     $("#newAccount input, #newAccount textarea").each(function (){
         let property =this.id
         let value = this.value
-        newAccount = {...newAccount, [property]:value}   
+        if(value==""){ //validation
+            sendForm=false;
+            $(`#${property}Help`).removeAttr("hidden");
+        }else{
+            $(`#${property}Help`).attr("hidden", true);
+            newAccount = {...newAccount, [property]:value}   
+        }    
     })
+    if(sendForm){
+        newAccount = {...newAccount, userId: new Date().getTime()}
+        //console.log(newAccount)
+        $('#newAccount')[0].reset();
+        saveUsers(newAccount)
+        loadView("./views/home.html", "home")
+    }else{
+        return false
+    }
 
     newAccount = {...newAccount, userId: new Date().getTime()}
     saveUsers(newAccount)
@@ -765,7 +786,7 @@ const printSinglePost = (data) => {
     //printSinglePost(getPost("-MYsPw9-8lhLZSCvtuRs"));
     principalContainer.on("click", "#saveAccount",() => {
         getNewAccount()
-        loadView("./views/home.html", "home")
+       
     })
 
 //FUNCIONALIDAD DE BOTONES
@@ -852,17 +873,36 @@ const newPost = () =>{
     let tagArray = []
     let dataContainer = $('#write-new-post input[type=text], #write-new-post textarea, #write-new-post select')
     let checkBoxContainer = $('#write-new-post input[type=checkbox]:checked')
+    let sendForm=true//validation
     dataContainer.each(function(){
         let containerKey = this.id
-        let containerValue = this.value
-        newPostData = {...newPostData, [containerKey]: containerValue}
+        let containerValue = this.value   
+        if(containerValue==""){ //validation
+            sendForm=false;
+            $(`#${containerKey}Help`).removeAttr("hidden");
+        }else{
+            $(`#${containerKey}Help`).attr("hidden", true);
+            newPostData = {...newPostData, [containerKey]: containerValue}      
+        }    
     })
     checkBoxContainer.each(function(){
         let newValue = '#' + this.value
         tagArray.push(newValue)
     })
-    newPostData = {...newPostData, tags: tagArray, userId : activeID, creationDate: moment().format('DD/MM/YYYY'), creationTime: moment().format('h:mm'), postId : Date.now()}
-    savePosts(newPostData)
+    if(tagArray.length<1){ //validation
+        sendForm=false;
+        $(`#tagsHelp`).removeAttr("hidden");
+    }else{
+        $(`#tagsHelp`).attr("hidden", true);
+    }
+    if(sendForm){
+        newPostData = {...newPostData, tags: tagArray, userId : activeID, creationDate: moment().format('DD/MM/YYYY'), creationTime: moment().format('h:mm'), postId : Date.now(), likes: 0}
+        $('#write-new-post')[0].reset()
+        savePosts(newPostData)
+        loadView('views/home.html','home')
+    }else{
+        return false
+    }    
 }
 $('.total-container').on('click', '#submit-new-post', newPost)
 
@@ -883,8 +923,8 @@ const setNewLike = (event) =>{
     console.log(likes + ' : ' + numOfLikesUploaded)
     console.log(postToLike)
     patchPost(event, numOfLikesUploaded, likes)
-    location.reload()
-
+    //location.reload()
+    
 }
 $('.total-container').on('click', '.likes-anchor', function(event){
     let imgHeart = event.target.parentElement.firstElementChild
