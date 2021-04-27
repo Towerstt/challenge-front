@@ -1,3 +1,5 @@
+
+
 // -------- CRUD POSTS -----------
 const savePosts = (objectPost) => {
     $.ajax({
@@ -295,6 +297,7 @@ const loadView = (url, view) => {
                 $('.bttn-write').click(() => {
                     loadView("./views/createPost.html", "createPost")
                 })
+
                 printHome(getPosts())
                 printAside(getPosts())
                 
@@ -317,6 +320,7 @@ const loadView = (url, view) => {
                 $('.bttn-write').click(() => {
                     loadView("./views/createPost.html", "createPost")
                 })
+
                 printSinglePost(getPost(singlePostKey))
                 break
 
@@ -341,22 +345,30 @@ const checkUserExist = () => {
 }
 var activeID
 const setActiveUser = userData => {
-    const {
-        description,
-        joined,
-        location,
-        mail,
-        password,
-        userId,
-        userName,
-        userNickname,
-        userPic
-    } = userData
-    $('#avt').attr('src', userPic)
-    $('#active-user-name').text(userName)
-    $('#active-user-nickname').text(userNickname)
-    activeID = userId
-    loadView("./views/home.html", "home")
+    if (l.length === 0){
+        const {
+            description,
+            joined,
+            location,
+            mail,
+            password,
+            userId,
+            userName,
+            userNickname,
+            userPic
+        } = userData
+        $('#avt').attr('src', userPic)
+        $('#active-user-name').text(userName)
+        $('#active-user-nickname').text(userNickname)
+        activeID = userId
+        loadView("./views/home.html", "home")
+    }
+    else{
+        $('#avt').attr('src', l.getItem('AvtImg'))
+        $('#active-user-name').text(l.getItem('newUsN'))
+        $('#active-user-nickname').text(l.getItem('newUsNname'))
+    }
+    
 }
 
 
@@ -574,7 +586,6 @@ const getNewAccount = ()=>{
     })
 
     newAccount = {...newAccount, userId: new Date().getTime()}
-    console.log(newAccount)
     saveUsers(newAccount)
 }
 
@@ -824,6 +835,7 @@ $('#devto-logo').click(() =>{
 })
 $('#sign-out').click(()=>{
     activeUser = {}
+    l.clear()
     loadView("./views/landing.html", "landing")
 })
 $('#login-a').click(()=>{
@@ -993,4 +1005,44 @@ $('.total-container').on('click', '.go-to-detail', function (event) {
     singlePostKey = event.target.dataset.postkey;
     //console.log("buton aside", event.target.dataset.postkey)
     loadView("./views/post.html", "post")
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+let l = localStorage
+$('.total-container').on('focusout', '#userPic' ,function(){
+    l.setItem('AvtImg', $('#userPic').val())
+    console.log(l.getItem('AvtImg'))
+})
+$('.total-container').on('focusout', '#mail' ,function(){
+    l.setItem('mail', $('#mail').val())
+    console.log(l.getItem('mail'))
+})
+$('.total-container').on('focusout', '#password' ,function(){
+    l.setItem('psd', $('#password').val())
+    console.log(l.getItem('psd'))
+})
+$('.total-container').on('focusout', '#userName' ,function(){
+    l.setItem('newUsN', $('#userName').val())
+    console.log(l.getItem('newUsN'))
+})
+$('.total-container').on('focusout', '#userNickName' ,function(){
+    l.setItem('newUsNname', $('#userNickName').val())
+    console.log(l.getItem('newUsNname'))
+})
+$('#devto-logo').on('click', '#devto-logo',function(){
+    l.length != 0 ? l.setItem('ID', activeID) : null
 })
