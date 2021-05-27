@@ -2,9 +2,13 @@
 
 // -------- CRUD POSTS -----------
 const savePosts = (objectPost) => {
+    console.log(objectPost)
     $.ajax({
         method: "POST",
-        url: "https://ajaxclass-1ca34.firebaseio.com/11g/teamd/posts/.json",
+        headers : {
+            "Content-Type" : "application/json"
+        },
+        url: "http://localhost:8080/posts",
         data: JSON.stringify(objectPost),
         success: (response) => {
             console.log(response);
@@ -15,21 +19,41 @@ const savePosts = (objectPost) => {
     });
 };
 
+//#region ------ done -----
 const getPosts = () => {
     let dbPosts = [];
+    let mongoPosts = {}
     $.ajax({
         method: "GET",
-        url: "https://ajaxclass-1ca34.firebaseio.com/11g/teamd/posts/.json",
+        url: "http://localhost:8080/posts",
         success: (response) => {
-            dbPosts = response
+            dbPosts = response.data.posts
+            for (key in dbPosts){
+                const {
+                    tags,
+                    _id,
+                    content,
+                    coverUrl,
+                    creationDate,
+                    creationTime,
+                    duration,
+                    likes,
+                    postId,
+                    title,
+                    userId
+                } = dbPosts[key]
+                mongoPosts = {...mongoPosts, [_id] : {tags, content, coverUrl, creationDate, creationTime, duration, likes, postId, title, userId}}
+            }            
         },
         error: (error) => {
             console.log(error);
         },
         async: false,
     });
-    return dbPosts;
+    return mongoPosts;
 };
+//#endregion
+
 const patchPost = (event, newVal, newKey) => {
     let postKey = event.target.dataset.postkey
     let postLike = event.target
@@ -38,7 +62,7 @@ const patchPost = (event, newVal, newKey) => {
     $.ajax({
         method:"PATCH",
         data:JSON.stringify({[newKey]:newVal}),
-        url:`https://ajaxclass-1ca34.firebaseio.com/11g/teamd/posts/${postKey}.json`,
+        url:`http://localhost:8080/posts/${postKey}`,
         success: response => {
             console.log( response )
             //getPosts()
@@ -58,7 +82,7 @@ const patchPost = (event, newVal, newKey) => {
 const deletePosts = (key) => {
     $.ajax({
         method: "DELETE",
-        url: `https://ajaxclass-1ca34.firebaseio.com/11g/teamd/posts/${key}.json`,
+        url: `http://localhost:8080/posts/${key}`,
         success: (response) => {
             console.log(response);
         },
@@ -74,7 +98,10 @@ const saveReplies = (objectReply) => {
     //$(event.target).data("mentorkey");
     $.ajax({
         method: "POST",
-        url: "https://ajaxclass-1ca34.firebaseio.com/11g/teamd/replies/.json",
+        headers : {
+            "Content-Type" : "application/json"
+        },
+        url: "http://localhost:8080/replies",
         data: JSON.stringify(objectReply),
         success: (response) => {
             console.log(response);
@@ -86,33 +113,53 @@ const saveReplies = (objectReply) => {
     });
 };
 
+
+//#region  ---- done -----
 const getReplies = () => {
     let dbReplies;
+    let mongoReplies = {}
     $.ajax({
         method: "GET",
-        url: "https://ajaxclass-1ca34.firebaseio.com/11g/teamd/replies/.json",
+        url: "http://localhost:8080/replies/",
         success: (response) => {
-
-            dbReplies = response;
+            dbReplies = response.data.replies;
+            for (key in dbReplies){
+                const {
+                    content,
+                    creationDate,
+                    creationTime,
+                    post,
+                    replyId,
+                    userId,
+                    _id
+                } = dbReplies[key]
+                mongoReplies = {...mongoReplies, [_id] : {content, creationDate, creationTime, post, replyId, userId}}
+            }
         },
         error: (error) => {
             console.log(error);
         },
         async: false,
     });
-    return dbReplies;
+    return mongoReplies;
 };
+//#endregion
 
 // -------- CRUD USERS -----------
 const saveUsers = (objectUser) => {
+    console.log(objectUser)
     $.ajax({
         method: "POST",
-        url: "https://ajaxclass-1ca34.firebaseio.com/11g/teamd/users/.json",
+        headers : {
+            "Content-Type" : "application/json"
+        },
+        url: "http://localhost:8080/users",
         data: JSON.stringify(objectUser),
-        success: (response) => {
-            console.log(response);
-            let aU = getUser(response.name)
-            setActiveUser(aU)
+        success: async (response) => {
+            console.log(response.data.userPosted._id);
+            let aU = getUser(response.data.userPosted._id)
+            console.log(aU)
+            await setActiveUser(aU)
         },
         error: (error) => {
             console.log(error);
@@ -121,14 +168,31 @@ const saveUsers = (objectUser) => {
 
 };
 
+//#region -----done ------
 const getUsers = () => {
     let dbUsers;
+    let mongoUsers = {}
     $.ajax({
         method: "GET",
-        url: "https://ajaxclass-1ca34.firebaseio.com/11g/teamd/users/.json",
+        url: "http://localhost:8080/users",
         success: (response) => {
-
-            dbUsers = response;
+            dbUsers = response.data.users;
+            for (key in dbUsers){
+                const {
+                    _id,
+                    description,
+                    joined,
+                    location,
+                    mail,
+                    password,
+                    userId,
+                    userName,
+                    userNickname,
+                    userPic,
+                    work
+                } = dbUsers[key]
+                mongoUsers = {...mongoUsers, [_id] : {description, joined, location, mail, password, userId, userName, userNickname, userPic, work}}
+            }
         },
         error: (error) => {
             console.log(error);
@@ -137,23 +201,41 @@ const getUsers = () => {
     });
 
 
-    return dbUsers;
+    return mongoUsers;
 };
+
+//#endregion
 
 const getUser = (key) => {
     let dbUser = {}
+    let mongoUser = {}
     $.ajax({
       method: "GET",
-      url: `https://ajaxclass-1ca34.firebaseio.com/11g/teamd/users/${key}/.json`,
+      url: `http://localhost:8080/users/${key}`,
       success: (response) => {
-        dbUser = response;
-      },
+        dbUsers = response.data.users;
+            const {
+                _id,
+                description,
+                joined,
+                location,
+                mail,
+                password,
+                userId,
+                userName,
+                userNickname,
+                userPic,
+                work
+            } = dbUsers
+            mongoUser = {[_id] : {description, joined, location, mail, password, userId, userName, userNickname, userPic, work}}
+        
+    },
       error: (error) => {
         console.log(error);
       },
       async: false,
     });    
-    return dbUser;
+    return mongoUser;
   };
   
 
@@ -190,7 +272,7 @@ const patchUser = (userKey, postKey) => {
 const deleteUser = (key) => {
     $.ajax({
         method: "DELETE",
-        url: `https://ajaxclass-1ca34.firebaseio.com/11g/teamd/users/${key}.json`,
+        url: `http://localhost:8080/users/${key}`,
 
         success: (response) => {
             console.log(response);
@@ -326,7 +408,6 @@ const loadView = (url, view) => {
                 $('.bttn-write').click(() => {
                     loadView("./views/createPost.html", "createPost")
                 })
-
                 printSinglePost(getPost(singlePostKey))
                 break
 
@@ -336,12 +417,14 @@ const loadView = (url, view) => {
     })
 }
 
+//#region ------ done ------
 const checkUserExist = () => {
     let inputGroup = $('.userdata')
     userExists = {}
     $.each(inputGroup, (idx, currentInput) => {
         userExists[currentInput.name] = currentInput.value
     })
+    console.log(userExists)
     inputGroup.val('')
     allUsers = getUsers()
     $.each(allUsers, (idx, current) => {
@@ -351,7 +434,8 @@ const checkUserExist = () => {
 }
 var activeID
 const setActiveUser = userData => {
-    if (l.length === 0){
+    console.log(userData)
+    if (userData){
         const {
             description,
             joined,
@@ -385,6 +469,7 @@ const reorderArray = arr => {
     arr[1] = temp[0]
     return arr
 }
+
 //Es importante en time poner ('days', 'weeks', 'months', 'years')
 const filterByDate = (numberOfDays,time) => {
     console.log(typeof(numberOfDays))
@@ -417,6 +502,8 @@ const filterByDate = (numberOfDays,time) => {
     return postFilteredByTime
 
 }
+
+
 //count Replies by Post
 const countRepliesByPost = (postId) => {  
     let replies = getReplies();
@@ -431,11 +518,13 @@ const countRepliesByPost = (postId) => {
     countReplies =Object.keys(repliesByPost).length
     return countReplies
 }
+
+
 const printHome = (allPostsToPrint) => {
     $('.post-container').empty()
     let firstPostKey = Object.keys(allPostsToPrint)[0]
     let postAuthor
-    for (key in allPostsToPrint) {
+    for (post in allPostsToPrint) {
         const {
             content,
             coverUrl,
@@ -447,11 +536,12 @@ const printHome = (allPostsToPrint) => {
             tags,
             title,
             userId
-        } = allPostsToPrint[key]
+        } = allPostsToPrint[post]
         let detalle = '#'
         let numberOfComments = 0
         postAuthor = getAutor(userId, getUsers())
-        if (key === firstPostKey) {
+        if (post === firstPostKey) {
+            console.log('OK')
             let principalPost =
                 `<div class="post w-100 border bg-white rounded bg-white mt-2 mb-2 shadow-sm" id="post-${postId}">
                 <!--Imagen principal-->
@@ -467,7 +557,7 @@ const printHome = (allPostsToPrint) => {
                     </div>
                 </div>
                 <a href="${detalle}">
-                    <h1 class="ml-3 font-weight-bold"><a href="#" data-post-key="${key}" class="btn-title">${title}</a></h1>
+                    <h1 class="ml-3 font-weight-bold"><a href="#" data-post-key="${post}" class="btn-title">${title}</a></h1>
                 </a>
                 <ul class="h-post d-flex w-100 flex-wrap category-wrapper" data-postId = ${postId}>
                     <li><a href="#">Primer Tag de Prueba</a></li>
@@ -478,7 +568,7 @@ const printHome = (allPostsToPrint) => {
                         <div>
                             <img src="Images/heart2red.svg" class="red-heart" alt="like" />
                             <img src="Images/heart2.svg" alt="like" />
-                            <a class = 'likes-anchor text-muted' data-postkey = ${key}>${likes}</a>
+                            <a class = 'likes-anchor text-muted' data-postkey = ${post}>${likes}</a>
                             <span class="d-none d-md-inline">reactions</span>
                         </div>
                         <div>
@@ -509,7 +599,7 @@ const printHome = (allPostsToPrint) => {
                 </div>
             </div>
             <a href="#">
-                <h1 class="ml-3 font-weight-bold"><a href="#" data-post-key="${key}" class="btn-title">${title}</a></h1>
+                <h1 class="ml-3 font-weight-bold"><a href="#" data-post-key="${post}" class="btn-title">${title}</a></h1>
             </a>
             <ul class="h-post d-flex w-100 flex-wrap category-wrapper" data-postId = ${postId}>
                 <li><a href="#">Primer Tag de Prueba</a></li>
@@ -520,7 +610,7 @@ const printHome = (allPostsToPrint) => {
                     <div>
                         <img src="Images/heart2red.svg" class="red-heart" alt="like" />    
                         <img src="Images/heart2.svg" alt="like" />
-                        <a class = 'likes-anchor text-muted' data-postkey = ${key}>${likes}</a>
+                        <a class = 'likes-anchor text-muted' data-postkey = ${post}>${likes}</a>
                         <span class="d-none d-md-inline">reactions</span>
                     </div>
                     <div>
@@ -573,6 +663,8 @@ const printHome = (allPostsToPrint) => {
     }
 }*/
 
+//#endregion
+
 ////Create Account
 principalContainer.on("click", ".add-user", () => {
     console.log( " agregando usuario ")
@@ -606,8 +698,8 @@ const getNewAccount = ()=>{
         return false
     }
 
-    newAccount = {...newAccount, userId: new Date().getTime()}
-    saveUsers(newAccount)
+    // newAccount = {...newAccount, userId: new Date().getTime()}
+    // saveUsers(newAccount)
 }
 
 //Function Search Posts
@@ -659,16 +751,31 @@ const searchPosts = (search, posts) =>{
 //let postKey = urlParams.get("postkey");
 
 //console.log(postKey);
-
+//#region ----done
 const getPost = (postKey) => {
   let dbPost = {};
+  let mongoPost = {}
   $.ajax({
     method: "GET",
-    url: `https://ajaxclass-1ca34.firebaseio.com/11g/teamd/posts/${postKey}.json`,
+    url: `http://localhost:8080/posts/${postKey}`,
     success: (response) => {
-      console.log(response);
-      dbPost = response;
-      
+      dbPost = response.data.posts;
+      console.log(dbPost)
+        const {
+            tags,
+            _id,
+            content,
+            coverUrl,
+            creationDate,
+            creationTime,
+            duration,
+            likes,
+            postId,
+            title,
+            userId
+        } = dbPost
+        mongoPost = {[_id] : {tags, content, coverUrl, creationDate, creationTime, duration, likes, postId, title, userId}}
+            console.log(mongoPost)
     },
     error: (error) => {
       console.log(error);
@@ -677,34 +784,32 @@ const getPost = (postKey) => {
   });
 
   //console.log("getPost", dbPost);
-  return dbPost;
+  return mongoPost;
 }; 
+
+//#endregion
 
 //Print replies function
 const printReplies = (postId) => {
     $(`#replies-wrapper li`).remove();
     let replies = getReplies();
     let repliesByPost = {};
-    
     let countReplies = 0;
 
     for (key in replies) { 
+
         if (replies[key].post === postId) {
           values=replies[key]
           repliesByPost = {...repliesByPost, [key] : values }
         }
     }
 
-    console.log('replies  ', replies)
-    console.log('replies  ', repliesByPost)
     countReplies =Object.keys(repliesByPost).length
     
     if(countReplies > 0){ 
         $('.count-replies').html(countReplies)  
-        for (key in repliesByPost) {
-        
-            
-            //let user = getUser(replies[key].userId);
+        for (replyKey in repliesByPost) {
+            //let user = getUser(replies[replyKey].userId);
             //console.log(user.avatar);
             // console.log("traeusercomment", user);
     
@@ -712,12 +817,12 @@ const printReplies = (postId) => {
     
             let liHTML = `<li class="list-group-item">
                                     <div class="reply-box">
-                                        <h4 id="reply-${repliesByPost[key].replyId}"></h4>
+                                        <h4 id="reply-${repliesByPost[replyKey].replyId}"></h4>
                                         
-                                        <p class="mb-0 text-muted comment-text">${repliesByPost[key].content}</p>
+                                        <p class="mb-0 text-muted comment-text">${repliesByPost[replyKey].content}</p>
                                         <p class="mb-0 text-right text-muted comment-date">
-                                            <span class="date">${repliesByPost[key].creationDate}</span> 
-                                            <span class="time">${repliesByPost[key].creationTime}</span>   
+                                            <span class="date">${repliesByPost[replyKey].creationDate}</span> 
+                                            <span class="time">${repliesByPost[replyKey].creationTime}</span>   
                                         </p>
                                     </div>
                                 </li>
@@ -726,7 +831,7 @@ const printReplies = (postId) => {
             let repWrapp = `#replies-wrapper`;  
             $(repWrapp).prepend(liHTML);    
             //print user
-            postAuthor = getAutor(repliesByPost[key].userId, getUsers())
+            postAuthor = getAutor(repliesByPost[replyKey].userId, getUsers())
             userInfo=`
             <div class="d-flex flex-row mb-3">
             <img
@@ -739,31 +844,28 @@ const printReplies = (postId) => {
             </a>
           </div>
             `
-            //let userinfo = printUser(replies[key].userId);
-            $(`#reply-${repliesByPost[key].replyId}`).append(userInfo);
-        
+            //let userinfo = printUser(replies[replyKey].userId);
+            $(`#reply-${repliesByPost[replyKey].replyId}`).append(userInfo);
         }
-        
     }
   };
 
 const printSinglePost = (data) => {
-
-    postAuthor = getAutor(data.userId, getUsers())  
-    console.log(data.content);
-    console.log(data.coverUrl);
-    $(".post-wrapper .post-cover-img").attr("src", data.coverUrl);
-    $(".post-wrapper .post-title").html(data.title);
-
-    $(".post-wrapper .post-tags").html(data.title);
+    let uID = Object.values(data)
+    postAuthor = getAutor(uID[0].userId, getUsers())  
     
-    $(".post-wrapper .content").html(data.content);
+    $(".post-wrapper .post-cover-img").attr("src", uID[0].coverUrl);
+    $(".post-wrapper .post-title").html(uID[0].title);
+
+    $(".post-wrapper .post-tags").html(uID[0].title);
+    
+    $(".post-wrapper .content").html(uID[0].content);
     $(".post-wrapper .post-avatar").attr("src", postAuthor.userPic);
-    let dateCreationHtml = `${postAuthor.userName} <span class="ml-3 " >${data.creationDate} ・ ${data.duration} read</span>`;
+    let dateCreationHtml = `${postAuthor.userName} <span class="ml-3 " >${uID[0].creationDate} ・ ${uID[0].duration} read</span>`;
     $(".post-wrapper .post-creation").html(dateCreationHtml);
     
     $('.post-wrapper .post-tags').html("")  
-    data.tags.forEach( tag =>{
+    uID[0].tags.forEach( tag =>{
         $('.post-wrapper .post-tags').append(`<span class="badge ${tag.replace("#", "").toLowerCase()} mr-2 p-badge font-weight-normal text-size-icon"><a href="#" data-tag-name="${tag}" class="btn-post-tag">${tag}</a></span>`)
     })    
     $(".total-container .perfil-avatar").attr("src", postAuthor.userPic);
@@ -779,8 +881,8 @@ const printSinglePost = (data) => {
         
     }
     
-    $(".btn-save-replie").attr("data-commentkey", data.postId);
-    printReplies(data.postId);
+    $(".btn-save-replie").attr("data-commentkey", uID[0].postId);
+    printReplies(uID[0].postId);
 }
     //printSinglePost(getPost(postKey));
     //printSinglePost(getPost("-MYsPw9-8lhLZSCvtuRs"));
@@ -882,7 +984,7 @@ const newPost = () =>{
             $(`#${containerKey}Help`).removeAttr("hidden");
         }else{
             $(`#${containerKey}Help`).attr("hidden", true);
-            newPostData = {...newPostData, [containerKey]: containerValue}      
+            newPostData = {...newPostData, [`${containerKey}`]: containerValue}      
         }    
     })
     checkBoxContainer.each(function(){
@@ -896,8 +998,9 @@ const newPost = () =>{
         $(`#tagsHelp`).attr("hidden", true);
     }
     if(sendForm){
-        newPostData = {...newPostData, tags: tagArray, userId : activeID, creationDate: moment().format('DD/MM/YYYY'), creationTime: moment().format('h:mm'), postId : Date.now(), likes: 0}
+        newPostData = {...newPostData, "tags": tagArray, "userId" : activeID, "creationDate": moment().format('DD/MM/YYYY'), "creationTime": moment().format('hh:mm'), "postId" : Date.now(), "likes": 0}
         $('#write-new-post')[0].reset()
+        console.log(newPostData)
         savePosts(newPostData)
         loadView('views/home.html','home')
     }else{
@@ -972,7 +1075,7 @@ $('.total-container').on('click','.btn-save-replie',function(event){
         newReply={
             content: comment,
             creationDate: moment().format("l"),
-            creationTime: moment().format("LT"),
+            creationTime: moment().format("hh:mm"),
             post: postId,
             userId: activeID,
             replyId: Date.now()
@@ -1047,42 +1150,3 @@ $('.total-container').on('click', '.go-to-detail', function (event) {
     loadView("./views/post.html", "post")
 })
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-let l = localStorage
-$('.total-container').on('focusout', '#userPic' ,function(){
-    l.setItem('AvtImg', $('#userPic').val())
-    console.log(l.getItem('AvtImg'))
-})
-$('.total-container').on('focusout', '#mail' ,function(){
-    l.setItem('mail', $('#mail').val())
-    console.log(l.getItem('mail'))
-})
-$('.total-container').on('focusout', '#password' ,function(){
-    l.setItem('psd', $('#password').val())
-    console.log(l.getItem('psd'))
-})
-$('.total-container').on('focusout', '#userName' ,function(){
-    l.setItem('newUsN', $('#userName').val())
-    console.log(l.getItem('newUsN'))
-})
-$('.total-container').on('focusout', '#userNickName' ,function(){
-    l.setItem('newUsNname', $('#userNickName').val())
-    console.log(l.getItem('newUsNname'))
-})
-$('#devto-logo').on('click', '#devto-logo',function(){
-    l.length != 0 ? l.setItem('ID', activeID) : null
-})
